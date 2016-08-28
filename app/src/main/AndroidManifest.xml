@@ -19,7 +19,16 @@
             android:name=".ui.CalendarDetailActivity"
             android:label="@string/title_activity_calendar_detail"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.EventDetailActivity"
+            android:label="@string/title_activity_event_detail"
+            android:parentActivityName=".ui.CalendarDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="amhamogus.com.daysoff.ui.CalendarDetailActivity" />
+        </activity>
     </application>
 
 </manifest>

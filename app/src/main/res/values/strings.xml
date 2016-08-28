@@ -3,4 +3,17 @@
     <string name="title_activity_calendar_detail">CalendarDetailActivity</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_event_detail">EventDetailActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Event Detail Sceen -->
+    <string name="when">When:</string>
+    <string name="what">What:</string>
+    <string name="who">Who:</string>
+
+    <string name="morning">Morning</string>
+    <string name="afternoon">Afternoon</string>
+    <string name="evening">Evening</string>
 </resources>

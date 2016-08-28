@@ -1,5 +1,6 @@
 package amhamogus.com.daysoff.ui;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,11 +19,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.squareup.timessquare.CalendarCellDecorator;
+import com.squareup.timessquare.CalendarCellView;
 import com.squareup.timessquare.CalendarPickerView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import amhamogus.com.daysoff.R;
 
@@ -133,7 +139,28 @@ public class CalendarDetailActivity extends AppCompatActivity {
             CalendarPickerView calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
             Date today = new Date();
             calendar.init(today, nextYear.getTime())
+                    .inMode(CalendarPickerView.SelectionMode.MULTIPLE)
                     .withSelectedDate(today);
+
+            calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
+                @Override
+                public void onDateSelected(Date date) {
+                    //Toast.makeText(getContext(),"date: " + date.toString(), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getContext(), EventDetailActivity.class);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onDateUnselected(Date date) {
+
+                }
+            });
+
+            //Hook into calendar widget
+            List<CalendarCellDecorator> decoratorList = new ArrayList<>();
+            decoratorList.add(new DayDecorator());
+            calendar.setDecorators(decoratorList);
+
             return rootView;
         }
     }
@@ -213,4 +240,7 @@ public class CalendarDetailActivity extends AppCompatActivity {
             return null;
         }
     }
+
+
+
 }
