@@ -3,6 +3,8 @@ package amhamogus.com.daysoff;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Dialog;
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,11 +12,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,6 +31,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
@@ -37,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import amhamogus.com.daysoff.ui.CalendarDetailActivity;
 import amhamogus.com.daysoff.ui.CalendarItemFragment;
 import amhamogus.com.daysoff.ui.dummy.DummyContent;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -46,9 +49,12 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends AppCompatActivity implements CalendarItemFragment.OnListFragmentInteractionListener,
         EasyPermissions.PermissionCallbacks {
 
+    private CalendarItemFragment mList;
+    private List<CalendarListEntry> returnedCalendarList;
+
     GoogleAccountCredential mCredential;
     public Toast mOutputText;
-    private Button mCallApiButton;
+
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -68,17 +74,19 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+        getCalendarList();
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(String item) {
         //TODO: Pass Calendar ID to CalendarDetailActivity
 //        if(item != null){
 //            Toast.makeText(MainActivity.this,  "Item number:" +item.id,
 //                    Toast.LENGTH_SHORT).show();
 //        }
 
-        getCalendarList();
+
 
   //      Intent intent = new Intent(getApplicationContext(), CalendarDetailActivity.class);
 //        startActivity(intent);
@@ -279,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
      * An asynchronous task that handles the Google Calendar API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    private class RequestCalendarListTask extends AsyncTask<Void, Void, List<String>> {
+    private class RequestCalendarListTask extends AsyncTask<Void, Void, List<CalendarListEntry>> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
 
@@ -297,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
          * @param params no parameters needed for this task.
          */
         @Override
-        protected List<String> doInBackground(Void... params) {
+        protected List<CalendarListEntry> doInBackground(Void... params) {
             try {
                 return getDataFromApi();
             } catch (Exception e) {
@@ -312,29 +320,33 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
          * @return List of Strings describing returned events.
          * @throws IOException
          */
-        private List<String> getDataFromApi() throws IOException {
+        private List<CalendarListEntry> getDataFromApi() throws IOException {
             // List the next 10 events from the primary calendar.
-            DateTime now = new DateTime(System.currentTimeMillis());
-            List<String> eventStrings = new ArrayList<String>();
-            Events events = mService.events().list("primary")
-                    .setMaxResults(10)
-                    .setTimeMin(now)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            List<Event> items = events.getItems();
+          //  DateTime now = new DateTime(System.currentTimeMillis());
+//            List<String> eventStrings = new ArrayList<String>();
+//            Events events = mService.events().list("primary")
+//                    .setMaxResults(10)
+//                    .setTimeMin(now)
+//                    .setOrderBy("startTime")
+//                    .setSingleEvents(true)
+//                    .execute();
 
-            for (Event event : items) {
-                DateTime start = event.getStart().getDateTime();
-                if (start == null) {
-                    // All-day events don't have start times, so just use
-                    // the start date.
-                    start = event.getStart().getDate();
-                }
-                eventStrings.add(
-                        String.format("%s (%s)", event.getSummary(), start));
-            }
-            return eventStrings;
+            CalendarList mList = mService.calendarList().list().execute();
+            List<CalendarListEntry> items = mList.getItems();
+
+            //List<Event> items = events.getItems();
+
+//            for (Event event : items) {
+//                DateTime start = event.getStart().getDateTime();
+//                if (start == null) {
+//                    // All-day events don't have start times, so just use
+//                    // the start date.
+//                    start = event.getStart().getDate();
+//                }
+//                eventStrings.add(
+//                        String.format("%s (%s)", event.getSummary(), start));
+//            }
+            return items;
         }
 
 
@@ -344,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
         }
 
         @Override
-        protected void onPostExecute(List<String> output) {
+        protected void onPostExecute(List<CalendarListEntry> output) {
             if (output == null || output.size() == 0) {
 
                 mOutputText
@@ -352,10 +364,19 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
                         .show();
             } else {
                 //output.add(0, "Data retrieved using the Google Calendar API:");
-                mOutputText
-                        .makeText(getApplicationContext(),
-                                "Data retrieved using the Google Calendar API:" + TextUtils.join("\n", output), Toast.LENGTH_SHORT)
-                        .show();
+//                mOutputText
+//                        .makeText(getApplicationContext(),
+//                                "Data retrieved using the Google Calendar API:" + TextUtils.join("\n", output), Toast.LENGTH_SHORT)
+//                        .show();
+                returnedCalendarList = output;
+
+                if(returnedCalendarList != null) {
+                    mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
+                }
+
+                // Add fragment to main activity
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.list_wrapper, mList).commit();
             }
         }
 

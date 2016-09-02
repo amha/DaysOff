@@ -5,10 +5,14 @@
     android:layout_height="match_parent"
     tools:context="amhamogus.com.daysoff.MainActivity">
 
-   <fragment
-       android:name="amhamogus.com.daysoff.ui.CalendarItemFragment"
+   <FrameLayout
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:id="@+id/calendar_list"/>
+       android:id="@+id/list_wrapper"/>
+   <!--<fragment-->
+       <!--android:name="amhamogus.com.daysoff.ui.CalendarItemFragment"-->
+       <!--android:layout_width="match_parent"-->
+       <!--android:layout_height="match_parent"-->
+       <!--android:id="@+id/calendar_list"/>-->
 
 </FrameLayout>

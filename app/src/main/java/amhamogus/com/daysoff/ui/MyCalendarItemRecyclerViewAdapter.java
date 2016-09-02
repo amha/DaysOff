@@ -10,6 +10,8 @@ import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.ui.CalendarItemFragment.OnListFragmentInteractionListener;
 import amhamogus.com.daysoff.ui.dummy.DummyContent.DummyItem;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,10 +21,10 @@ import java.util.List;
  */
 public class MyCalendarItemRecyclerViewAdapter extends RecyclerView.Adapter<MyCalendarItemRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final ArrayList<String> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyCalendarItemRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyCalendarItemRecyclerViewAdapter(ArrayList<String> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -37,8 +39,8 @@ public class MyCalendarItemRecyclerViewAdapter extends RecyclerView.Adapter<MyCa
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mIdView.setText(position + "");
+        holder.mContentView.setText(mValues.get(position));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +63,7 @@ public class MyCalendarItemRecyclerViewAdapter extends RecyclerView.Adapter<MyCa
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public String mItem;
 
         public ViewHolder(View view) {
             super(view);
