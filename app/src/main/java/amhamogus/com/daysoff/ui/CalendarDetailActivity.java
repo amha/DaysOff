@@ -29,28 +29,29 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
+
 import com.squareup.timessquare.CalendarCellDecorator;
-import com.squareup.timessquare.CalendarCellView;
 import com.squareup.timessquare.CalendarPickerView;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import amhamogus.com.daysoff.R;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class CalendarDetailActivity extends AppCompatActivity {
 
     final String TAG = "CANENDAR_ACTIVITY_TAG";
+    static CalendarPickerView calendar;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -133,6 +134,7 @@ public class CalendarDetailActivity extends AppCompatActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -161,15 +163,12 @@ public class CalendarDetailActivity extends AppCompatActivity {
 
             Calendar nextYear = Calendar.getInstance();
             nextYear.add(Calendar.YEAR, 1);
-
-            CalendarPickerView calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
             Date today = new Date();
 
-            // TODO: Figure out now to populate the calendar with event dates.
+            calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
             calendar.init(today, nextYear.getTime())
                     .inMode(CalendarPickerView.SelectionMode.MULTIPLE)
                     .withSelectedDate(today);
-                    //.withHighlightedDate();
 
             calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
                 @Override
@@ -306,6 +305,7 @@ public class CalendarDetailActivity extends AppCompatActivity {
                 events = mService.events().list("primary")
                         .setPageToken(pageToken)
                         .setTimeMin(now)
+                        .setMaxResults(20)
                         .execute();
                 items = events.getItems();
                 pageToken = events.getNextPageToken();
@@ -315,7 +315,7 @@ public class CalendarDetailActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-        // Do nothing
+            // Do nothing
         }
 
         @Override
@@ -325,7 +325,21 @@ public class CalendarDetailActivity extends AppCompatActivity {
                 // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
                 Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getApplicationContext(), output.size() + "", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(), output.size() + "", Toast.LENGTH_SHORT).show();
+
+                Collection<Date> dates = new ArrayList<Date>();
+
+                for (int i = 0; i < output.size(); i++) {
+
+                    Log.d(TAG, "collection value: " + i +" : " +output.get(i).getStart().getDateTime().getValue());
+                    //    String temp = output.get(i).getStart().getDate().toString();
+
+                    //              Date date = new SimpleDateFormat("yyyy-MM-dd").parse(temp);
+                    Date date = new Date(output.get(i).getStart().getDateTime().getValue());
+                    dates.add(date);
+                }
+
+                calendar.highlightDates(dates);
 //                returnedCalendarList = output;
 //                if (returnedCalendarList != null) {
 //                    mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
