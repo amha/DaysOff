@@ -1,9 +1,8 @@
 package amhamogus.com.daysoff.ui;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -12,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,19 +21,36 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 import com.squareup.timessquare.CalendarCellDecorator;
 import com.squareup.timessquare.CalendarCellView;
 import com.squareup.timessquare.CalendarPickerView;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import amhamogus.com.daysoff.R;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class CalendarDetailActivity extends AppCompatActivity {
 
+    final String TAG = "CANENDAR_ACTIVITY_TAG";
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -49,6 +66,16 @@ public class CalendarDetailActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+    /**
+     * The key for the list parameter
+     */
+    String ARG_CALENDAR_ID = "id";
+
+
+    GoogleAccountCredential mCredential;
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +83,7 @@ public class CalendarDetailActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -67,17 +95,17 @@ public class CalendarDetailActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        // Initialize credentials and service object.
+        Bundle extras = getIntent().getExtras();
+        String accountName = extras.getString(PREF_ACCOUNT_NAME);
 
+        mCredential = GoogleAccountCredential
+                .usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES))
+                .setSelectedAccountName(accountName)
+                .setBackOff(new ExponentialBackOff());
+
+        new RequestEventsTask(mCredential).execute();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -130,17 +158,18 @@ public class CalendarDetailActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_calendar_detail, container, false);
-            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
 
             Calendar nextYear = Calendar.getInstance();
             nextYear.add(Calendar.YEAR, 1);
 
             CalendarPickerView calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
             Date today = new Date();
+
+            // TODO: Figure out now to populate the calendar with event dates.
             calendar.init(today, nextYear.getTime())
                     .inMode(CalendarPickerView.SelectionMode.MULTIPLE)
                     .withSelectedDate(today);
+                    //.withHighlightedDate();
 
             calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
                 @Override
@@ -199,7 +228,6 @@ public class CalendarDetailActivity extends AppCompatActivity {
         }
     }
 
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -241,6 +269,74 @@ public class CalendarDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Request a list of events for a given calendar.
+     */
+    private class RequestEventsTask extends AsyncTask<Void, Void, List<Event>> {
 
+        private com.google.api.services.calendar.Calendar mService = null;
 
+        public RequestEventsTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Days Off")
+                    .build();
+        }
+
+        @Override
+        protected List<Event> doInBackground(Void... params) {
+            try {
+                return getEventsFromApi();
+            } catch (Exception e) {
+                cancel(true);
+                return null;
+            }
+        }
+
+        private List<Event> getEventsFromApi() throws IOException {
+            String pageToken = null;
+            Events events;
+            List<Event> items;
+            DateTime now = new DateTime(System.currentTimeMillis());
+
+            // Iterate over the events in the specified calendar
+            do {
+                events = mService.events().list("primary")
+                        .setPageToken(pageToken)
+                        .setTimeMin(now)
+                        .execute();
+                items = events.getItems();
+                pageToken = events.getNextPageToken();
+            } while (pageToken != null);
+            return items;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        // Do nothing
+        }
+
+        @Override
+        protected void onPostExecute(List<Event> output) {
+            if (output == null || output.size() == 0) {
+                // Show toast when the server doesn't return anything
+                // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), output.size() + "", Toast.LENGTH_SHORT).show();
+//                returnedCalendarList = output;
+//                if (returnedCalendarList != null) {
+//                    mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
+//                }
+//
+//                // Add fragment to main activity when we're retrieved
+//                // data from the the server
+//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//                transaction.replace(R.id.list_wrapper, mList).commit();
+            }
+        }
+
+    }
 }
