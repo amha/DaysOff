@@ -15,8 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -28,33 +26,48 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import amhamogus.com.daysoff.ui.CalendarDetailActivity;
 import amhamogus.com.daysoff.ui.CalendarItemFragment;
-import amhamogus.com.daysoff.ui.dummy.DummyContent;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MainActivity extends AppCompatActivity implements CalendarItemFragment.OnListFragmentInteractionListener,
+public class MainActivity extends AppCompatActivity
+        implements CalendarItemFragment.OnListFragmentInteractionListener,
         EasyPermissions.PermissionCallbacks {
 
+    /**
+     * A instance of {@link CalendarItemFragment} that displays a
+     * collection of events.
+     */
     private CalendarItemFragment mList;
+
+    /**
+     * A collection of {@link CalendarListEntry} associated with
+     * the current users' google account.
+     */
     private List<CalendarListEntry> returnedCalendarList;
+
+    /**
+     * ID of the user selected calendar.
+     */
+    private String calendarID;
+
+    /**
+     * The key for the list parameter.
+     */
+    private static final String ARG_CALENDAR_ID = "id";
 
     GoogleAccountCredential mCredential;
     public Toast mOutputText;
-
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -62,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
 
 
     @Override
@@ -79,17 +92,22 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
     }
 
     @Override
-    public void onListFragmentInteraction(String item) {
-        //TODO: Pass Calendar ID to CalendarDetailActivity
-//        if(item != null){
-//            Toast.makeText(MainActivity.this,  "Item number:" +item.id,
-//                    Toast.LENGTH_SHORT).show();
-//        }
+    public void onListFragmentInteraction(String calendarID) {
+        if (calendarID != null) {
+            // Passing a calendar ID
 
+            SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+            String name = pref.getString(PREF_ACCOUNT_NAME, null);
 
-
-  //      Intent intent = new Intent(getApplicationContext(), CalendarDetailActivity.class);
-//        startActivity(intent);
+            Intent intent = new Intent(getApplicationContext(), CalendarDetailActivity.class);
+            intent.putExtra(ARG_CALENDAR_ID, calendarID);
+            intent.putExtra(PREF_ACCOUNT_NAME, name);
+            startActivity(intent);
+        } else {
+            // Passing an empty string onClick.
+            Toast.makeText(MainActivity.this, "Please restart the app."
+                    , Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -125,11 +143,11 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
      * The following method was provided by the Google Calendar API Quickstart guide:
      * https://developers.google.com/google-apps/calendar/quickstart/android
      *
-     * @param requestCode The request code passed in
-     *     requestPermissions(android.app.Activity, String, int, String[])
-     * @param permissions The requested permissions. Never null.
+     * @param requestCode  The request code passed in
+     *                     requestPermissions(android.app.Activity, String, int, String[])
+     * @param permissions  The requested permissions. Never null.
      * @param grantResults The grant results for the corresponding permissions
-     *     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
+     *                     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -145,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
      * https://developers.google.com/google-apps/calendar/quickstart/android
      *
      * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
+     *                    permission
+     * @param list        The requested permission list. Never null.
      */
     @Override
     public void onPermissionsGranted(int requestCode, List<String> list) {
@@ -156,9 +174,10 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
     /**
      * Callback for when a permission is denied using the EasyPermissions
      * library.
+     *
      * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
+     *                    permission
+     * @param list        The requested permission list. Never null.
      */
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
@@ -167,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
 
     /**
      * Checks whether the device currently has a network connection.
+     *
      * @return true if the device has a network connection, false otherwise.
      */
     private boolean isDeviceOnline() {
@@ -178,8 +198,9 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
 
     /**
      * Check that Google Play services APK is installed and up to date.
+     *
      * @return true if Google Play Services is available and up to
-     *     date on this device; false otherwise.
+     * date on this device; false otherwise.
      */
     private boolean isGooglePlayServicesAvailable() {
         GoogleApiAvailability apiAvailability =
@@ -204,14 +225,14 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
     }
 
     /**
-     *
      * The following method was provided by the Google Calendar API Quickstart guide:
      * https://developers.google.com/google-apps/calendar/quickstart/android
-     *
+     * <p/>
      * Display an error dialog showing that Google Play Services is missing
      * or out of date.
+     *
      * @param connectionStatusCode code describing the presence (or lack of)
-     *     Google Play Services on this device.
+     *                             Google Play Services on this device.
      */
     void showGooglePlayServicesAvailabilityErrorDialog(
             final int connectionStatusCode) {
@@ -224,6 +245,9 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
     }
 
     /**
+     * The following method was provided by the Google Calendar API Quickstart guide:
+     * https://developers.google.com/google-apps/calendar/quickstart/android
+     * <p/>
      * Attempt to call the API, after verifying that all the preconditions are
      * satisfied. The preconditions are: Google Play Services installed, an
      * account was selected and the device currently has online access. If any
@@ -231,14 +255,12 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
      * appropriate.
      */
     private void getCalendarList() {
-        if (! isGooglePlayServicesAvailable()) {
+        if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        } else if (! isDeviceOnline()) {
-            mOutputText
-                    .makeText(this, "No network connection available.", Toast.LENGTH_SHORT)
-                    .show();
+        } else if (!isDeviceOnline()) {
+            mOutputText.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
         } else {
             new RequestCalendarListTask(mCredential).execute();
         }
@@ -248,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
                     mOutputText.setText(
@@ -282,7 +304,6 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
         }
     }
 
-
     /**
      * An asynchronous task that handles the Google Calendar API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
@@ -296,12 +317,13 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .setApplicationName("Days Off")
                     .build();
         }
 
         /**
          * Background task to call Google Calendar API.
+         *
          * @param params no parameters needed for this task.
          */
         @Override
@@ -317,64 +339,33 @@ public class MainActivity extends AppCompatActivity implements CalendarItemFragm
 
         /**
          * Fetch a list of the next 10 events from the primary calendar.
+         *
          * @return List of Strings describing returned events.
          * @throws IOException
          */
         private List<CalendarListEntry> getDataFromApi() throws IOException {
-            // List the next 10 events from the primary calendar.
-          //  DateTime now = new DateTime(System.currentTimeMillis());
-//            List<String> eventStrings = new ArrayList<String>();
-//            Events events = mService.events().list("primary")
-//                    .setMaxResults(10)
-//                    .setTimeMin(now)
-//                    .setOrderBy("startTime")
-//                    .setSingleEvents(true)
-//                    .execute();
-
             CalendarList mList = mService.calendarList().list().execute();
-            List<CalendarListEntry> items = mList.getItems();
-
-            //List<Event> items = events.getItems();
-
-//            for (Event event : items) {
-//                DateTime start = event.getStart().getDateTime();
-//                if (start == null) {
-//                    // All-day events don't have start times, so just use
-//                    // the start date.
-//                    start = event.getStart().getDate();
-//                }
-//                eventStrings.add(
-//                        String.format("%s (%s)", event.getSummary(), start));
-//            }
-            return items;
+            return mList.getItems();
         }
-
 
         @Override
         protected void onPreExecute() {
-            //mOutputText.makeText(this, "");
+        // Do nothing
         }
 
         @Override
         protected void onPostExecute(List<CalendarListEntry> output) {
             if (output == null || output.size() == 0) {
-
-                mOutputText
-                        .makeText(getApplicationContext(),"No results returned.", Toast.LENGTH_SHORT)
-                        .show();
+                // Show toast when the server doesn't return anything
+                mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
             } else {
-                //output.add(0, "Data retrieved using the Google Calendar API:");
-//                mOutputText
-//                        .makeText(getApplicationContext(),
-//                                "Data retrieved using the Google Calendar API:" + TextUtils.join("\n", output), Toast.LENGTH_SHORT)
-//                        .show();
                 returnedCalendarList = output;
-
-                if(returnedCalendarList != null) {
+                if (returnedCalendarList != null) {
                     mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
                 }
 
-                // Add fragment to main activity
+                // Add fragment to main activity when we're retrieved
+                // data from the the server
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.list_wrapper, mList).commit();
             }

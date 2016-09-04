@@ -13,8 +13,6 @@ import android.view.ViewGroup;
 import com.google.api.services.calendar.model.CalendarListEntry;
 
 import amhamogus.com.daysoff.R;
-import amhamogus.com.daysoff.ui.dummy.DummyContent;
-import amhamogus.com.daysoff.ui.dummy.DummyContent.DummyItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,19 +26,32 @@ import java.util.List;
 public class CalendarItemFragment extends Fragment {
 
 
-    // List of Calendars from Google Calendar
+    /**
+     * List of Calendars from Google Calendar
+     */
     private ArrayList<String> mCalendarList;
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
+    /**
+     * TODO: Determine if this is still needed
+     */
+    private static final String ARG_COLUMN_COUNT = "columnCount";
 
-    // Calendar List parameter
+    /**
+     * The key for the list parameter
+     */
     private static final String ARG_CALENDAR_LIST = "list";
 
-    // TODO: Customize parameters
+    /**
+     * TODO: Determine if this is still needed
+     */
     private int mColumnCount = 1;
 
+    /**
+     *
+     */
     private OnListFragmentInteractionListener mListener;
+
+    private ArrayList<String> calendarID;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -51,17 +62,22 @@ public class CalendarItemFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static CalendarItemFragment newInstance(int columnCount, List<CalendarListEntry> calendarList) {
-        CalendarItemFragment fragment = new CalendarItemFragment();
+    public static CalendarItemFragment newInstance(int columnCount,
+                                                   List<CalendarListEntry> calendarList) {
 
+        CalendarItemFragment fragment = new CalendarItemFragment();
         ArrayList<String> calendarListArray = new ArrayList<String>(calendarList.size());
-        for(int i = 0; i < calendarList.size(); i++){
+        ArrayList<String> idArray = new ArrayList<>(calendarList.size());
+
+        for (int i = 0; i < calendarList.size(); i++) {
             calendarListArray.add(calendarList.get(i).getSummary());
+            idArray.add(calendarList.get(i).getId());
         }
 
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         args.putStringArrayList(ARG_CALENDAR_LIST, calendarListArray);
+        args.putStringArrayList("temp", idArray);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,9 +86,12 @@ public class CalendarItemFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //  parameters instance variables
         if (getArguments() != null) {
+
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             mCalendarList = getArguments().getStringArrayList(ARG_CALENDAR_LIST);
+            calendarID = getArguments().getStringArrayList("temp");
         }
     }
 
@@ -90,7 +109,7 @@ public class CalendarItemFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyCalendarItemRecyclerViewAdapter(mCalendarList, mListener));
+            recyclerView.setAdapter(new MyCalendarItemRecyclerViewAdapter(mCalendarList, calendarID, mListener));
         }
         return view;
     }
@@ -99,6 +118,8 @@ public class CalendarItemFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
+        // Check that the activity implements the interaction handler
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
         } else {

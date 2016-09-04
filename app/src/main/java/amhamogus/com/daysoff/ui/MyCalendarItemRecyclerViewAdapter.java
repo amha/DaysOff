@@ -10,23 +10,30 @@ import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.ui.CalendarItemFragment.OnListFragmentInteractionListener;
 import amhamogus.com.daysoff.ui.dummy.DummyContent.DummyItem;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
+ *  Add description.
  */
-public class MyCalendarItemRecyclerViewAdapter extends RecyclerView.Adapter<MyCalendarItemRecyclerViewAdapter.ViewHolder> {
+public class MyCalendarItemRecyclerViewAdapter
+        extends RecyclerView.Adapter<MyCalendarItemRecyclerViewAdapter.ViewHolder> {
 
+    /**
+     * A collection of...
+     */
     private final ArrayList<String> mValues;
+    private final ArrayList<String> calendarID;
+
+    /**
+     * Callback that.....
+     */
     private final OnListFragmentInteractionListener mListener;
 
-    public MyCalendarItemRecyclerViewAdapter(ArrayList<String> items, OnListFragmentInteractionListener listener) {
+    public MyCalendarItemRecyclerViewAdapter(ArrayList<String> items, ArrayList<String> ids,
+                                             OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
+        calendarID = ids;
     }
 
     @Override
@@ -37,8 +44,9 @@ public class MyCalendarItemRecyclerViewAdapter extends RecyclerView.Adapter<MyCa
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = mValues.get(position);
+
         holder.mIdView.setText(position + "");
         holder.mContentView.setText(mValues.get(position));
 
@@ -48,7 +56,7 @@ public class MyCalendarItemRecyclerViewAdapter extends RecyclerView.Adapter<MyCa
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteraction(calendarID.get(position));
                 }
             }
         });
