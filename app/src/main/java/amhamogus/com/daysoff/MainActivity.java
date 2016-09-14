@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
 
     @Override
@@ -291,6 +291,7 @@ public class MainActivity extends AppCompatActivity
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
+
                         mCredential.setSelectedAccountName(accountName);
                         getCalendarList();
                     }
@@ -315,9 +316,10 @@ public class MainActivity extends AppCompatActivity
         public RequestCalendarListTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName("Days Off")
+                    .setApplicationName("Days Off - Debug")
                     .build();
         }
 

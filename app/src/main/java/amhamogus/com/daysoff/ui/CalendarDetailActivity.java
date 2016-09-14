@@ -1,6 +1,7 @@
 package amhamogus.com.daysoff.ui;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Acl;
+import com.google.api.services.calendar.model.AclRule;
+import com.google.api.services.calendar.model.Error;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
@@ -42,12 +47,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
 import amhamogus.com.daysoff.R;
 
-public class CalendarDetailActivity extends AppCompatActivity {
+public class CalendarDetailActivity extends AppCompatActivity implements SharedWithFragment.OnFragmentInteractionListener {
 
     final String TAG = "CANENDAR_ACTIVITY_TAG";
     static CalendarPickerView calendar;
@@ -72,10 +78,11 @@ public class CalendarDetailActivity extends AppCompatActivity {
      */
     String ARG_CALENDAR_ID = "id";
 
-
     GoogleAccountCredential mCredential;
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+    private static ProgressBar mProgress;
+    private static String currentAccountName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +106,11 @@ public class CalendarDetailActivity extends AppCompatActivity {
         // Initialize credentials and service object.
         Bundle extras = getIntent().getExtras();
         String accountName = extras.getString(PREF_ACCOUNT_NAME);
+        currentAccountName = accountName;
 
         mCredential = GoogleAccountCredential
                 .usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES))
-                .setSelectedAccountName(accountName)
+                .setSelectedAccountName(currentAccountName)
                 .setBackOff(new ExponentialBackOff());
 
         new RequestEventsTask(mCredential).execute();
@@ -130,10 +138,16 @@ public class CalendarDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onContactSelected(Uri uri) {
+        // Do nothing, this may not be needed
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+
 
         /**
          * The fragment argument representing the section number for this
@@ -161,11 +175,15 @@ public class CalendarDetailActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_calendar_detail, container, false);
 
+            mProgress = (ProgressBar) rootView.findViewById(R.id.calendar_progressbar);
+            mProgress.setVisibility(View.VISIBLE);
+
             Calendar nextYear = Calendar.getInstance();
             nextYear.add(Calendar.YEAR, 1);
             Date today = new Date();
 
             calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
+            calendar.setVisibility(View.INVISIBLE);
             calendar.init(today, nextYear.getTime())
                     .inMode(CalendarPickerView.SelectionMode.MULTIPLE)
                     .withSelectedDate(today);
@@ -173,14 +191,13 @@ public class CalendarDetailActivity extends AppCompatActivity {
             calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
                 @Override
                 public void onDateSelected(Date date) {
-                    //Toast.makeText(getContext(),"date: " + date.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "date: " + date.toString(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getContext(), EventDetailActivity.class);
                     startActivity(intent);
                 }
 
                 @Override
                 public void onDateUnselected(Date date) {
-
                 }
             });
 
@@ -245,7 +262,8 @@ public class CalendarDetailActivity extends AppCompatActivity {
                 case 0:
                     return PlaceholderFragment.newInstance(position + 1);
                 case 1:
-                    return ContactsFragment.newInstance(position + 1);
+                    //return ContactsFragment.newInstance(position + 1);
+                    return SharedWithFragment.newInstance(currentAccountName);
             }
             return null;
         }
@@ -280,7 +298,7 @@ public class CalendarDetailActivity extends AppCompatActivity {
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName("Days Off")
+                    .setApplicationName("Days Off - Debug")
                     .build();
         }
 
@@ -289,18 +307,23 @@ public class CalendarDetailActivity extends AppCompatActivity {
             try {
                 return getEventsFromApi();
             } catch (Exception e) {
+                Log.e(TAG, "AMHA OUT: " + e);
                 cancel(true);
                 return null;
             }
         }
 
         private List<Event> getEventsFromApi() throws IOException {
+            Log.d(TAG, "calling get events method");
             String pageToken = null;
             Events events;
             List<Event> items;
             DateTime now = new DateTime(System.currentTimeMillis());
+            //      GregorianCalendar upperBound = new GregorianCalendar(2016, Calendar.SEPTEMBER, 13);
 
+            Log.d(TAG, "about to loop over the service");
             // Iterate over the events in the specified calendar
+
             do {
                 events = mService.events().list("primary")
                         .setPageToken(pageToken)
@@ -309,17 +332,21 @@ public class CalendarDetailActivity extends AppCompatActivity {
                         .execute();
                 items = events.getItems();
                 pageToken = events.getNextPageToken();
-            } while (pageToken != null);
+            }
+            while (pageToken != null);
+
+            Log.d(TAG, "about to return to post execute");
             return items;
         }
 
         @Override
         protected void onPreExecute() {
-            // Do nothing
         }
 
         @Override
         protected void onPostExecute(List<Event> output) {
+
+            Log.d(TAG, "Starting post execute");
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
                 // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
@@ -331,15 +358,17 @@ public class CalendarDetailActivity extends AppCompatActivity {
 
                 for (int i = 0; i < output.size(); i++) {
 
-                    Log.d(TAG, "collection value: " + i +" : " +output.get(i).getStart().getDateTime().getValue());
+                    Log.d(TAG, "collection value: " + i + " : " + output.get(i).getStart().getDateTime().getValue());
                     //    String temp = output.get(i).getStart().getDate().toString();
 
                     //              Date date = new SimpleDateFormat("yyyy-MM-dd").parse(temp);
                     Date date = new Date(output.get(i).getStart().getDateTime().getValue());
                     dates.add(date);
                 }
+                //  mProgress.setVisibility(View.INVISIBLE);
 
                 calendar.highlightDates(dates);
+                calendar.setVisibility(View.VISIBLE);
 //                returnedCalendarList = output;
 //                if (returnedCalendarList != null) {
 //                    mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
@@ -353,4 +382,5 @@ public class CalendarDetailActivity extends AppCompatActivity {
         }
 
     }
+
 }
