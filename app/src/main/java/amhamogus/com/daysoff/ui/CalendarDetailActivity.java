@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -31,9 +30,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Acl;
-import com.google.api.services.calendar.model.AclRule;
-import com.google.api.services.calendar.model.Error;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
@@ -41,15 +37,12 @@ import com.squareup.timessquare.CalendarCellDecorator;
 import com.squareup.timessquare.CalendarPickerView;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.text.SimpleDateFormat;
 
 import amhamogus.com.daysoff.R;
 
@@ -76,37 +69,39 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
     /**
      * The key for the list parameter
      */
-    String ARG_CALENDAR_ID = "id";
+    private static final String ARG_CALENDAR_ID = "id";
+    private static final String ARG_ACCOUNT_NAME = "accountName";
+    private static final String ARG_CALENDAR_NAME = "calendarName";
+
+    private static String currentAccountName;
+    private static String calendarId;
+    private static String calendarName;
+
+    private static ProgressBar mProgress;
 
     GoogleAccountCredential mCredential;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
-    private static ProgressBar mProgress;
-    private static String currentAccountName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar_detail);
 
+        Bundle extras = getIntent().getExtras();
+        currentAccountName = extras.getString(ARG_ACCOUNT_NAME);
+        calendarId = extras.getString(ARG_CALENDAR_ID);
+        calendarName = extras.getString(ARG_CALENDAR_NAME);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(calendarName);
         setSupportActionBar(toolbar);
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        // Initialize credentials and service object.
-        Bundle extras = getIntent().getExtras();
-        String accountName = extras.getString(PREF_ACCOUNT_NAME);
-        currentAccountName = accountName;
 
         mCredential = GoogleAccountCredential
                 .usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES))
@@ -147,7 +142,6 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
-
 
         /**
          * The fragment argument representing the section number for this
@@ -210,40 +204,6 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
         }
     }
 
-    public static class ContactsFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public ContactsFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static ContactsFragment newInstance(int sectionNumber) {
-            ContactsFragment fragment = new ContactsFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-
-            View rootView = inflater.inflate(R.layout.fragment_calendar_detail_contacts, container, false);
-
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -262,7 +222,6 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
                 case 0:
                     return PlaceholderFragment.newInstance(position + 1);
                 case 1:
-                    //return ContactsFragment.newInstance(position + 1);
                     return SharedWithFragment.newInstance(currentAccountName);
             }
             return null;
@@ -334,7 +293,6 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
                 pageToken = events.getNextPageToken();
             }
             while (pageToken != null);
-
             Log.d(TAG, "about to return to post execute");
             return items;
         }
@@ -352,8 +310,6 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
                 // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
                 Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
             } else {
-                // Toast.makeText(getApplicationContext(), output.size() + "", Toast.LENGTH_SHORT).show();
-
                 Collection<Date> dates = new ArrayList<Date>();
 
                 for (int i = 0; i < output.size(); i++) {
@@ -366,7 +322,6 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
                     dates.add(date);
                 }
                 //  mProgress.setVisibility(View.INVISIBLE);
-
                 calendar.highlightDates(dates);
                 calendar.setVisibility(View.VISIBLE);
 //                returnedCalendarList = output;

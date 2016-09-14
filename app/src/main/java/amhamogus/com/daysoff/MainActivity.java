@@ -75,8 +75,9 @@ public class MainActivity extends AppCompatActivity
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+    private static final String ARG_CALENDAR_NAME = "calendarName";
 
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,16 +93,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(String calendarID) {
-        if (calendarID != null) {
-            // Passing a calendar ID
-
+    public void onCalendarSelectedInteraction(String calendarID, String calendarName) {
+        if (calendarID != null & calendarName != null) {
             SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
             String name = pref.getString(PREF_ACCOUNT_NAME, null);
-
             Intent intent = new Intent(getApplicationContext(), CalendarDetailActivity.class);
             intent.putExtra(ARG_CALENDAR_ID, calendarID);
             intent.putExtra(PREF_ACCOUNT_NAME, name);
+            intent.putExtra(ARG_CALENDAR_NAME, calendarName);
             startActivity(intent);
         } else {
             // Passing an empty string onClick.
@@ -365,7 +364,6 @@ public class MainActivity extends AppCompatActivity
                 if (returnedCalendarList != null) {
                     mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
                 }
-
                 // Add fragment to main activity when we're retrieved
                 // data from the the server
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

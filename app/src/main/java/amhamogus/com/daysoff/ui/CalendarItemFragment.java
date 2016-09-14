@@ -88,7 +88,6 @@ public class CalendarItemFragment extends Fragment {
 
         //  parameters instance variables
         if (getArguments() != null) {
-
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
             mCalendarList = getArguments().getStringArrayList(ARG_CALENDAR_LIST);
             calendarID = getArguments().getStringArrayList("temp");
@@ -145,7 +144,6 @@ public class CalendarItemFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(String item);
+        void onCalendarSelectedInteraction(String item, String name);
     }
 }
