@@ -9,8 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="amhamogus.com.daysoff.ui.EventDetailActivity"
-    tools:showIn="@layout/activity_event_detail">
+    tools:context="amhamogus.com.daysoff.ui.EventsActivity"
+    tools:showIn="@layout/activity_events">
 
     <fragment
         android:name="amhamogus.com.daysoff.ui.EventDetailFragment"

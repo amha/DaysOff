@@ -97,7 +97,7 @@ public class CalendarItemFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_calendaritem_list, container, false);
+        View view = inflater.inflate(R.layout.list_calendar, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -108,7 +108,7 @@ public class CalendarItemFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyCalendarItemRecyclerViewAdapter(mCalendarList, calendarID, mListener));
+            recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(mCalendarList, calendarID, mListener));
         }
         return view;
     }

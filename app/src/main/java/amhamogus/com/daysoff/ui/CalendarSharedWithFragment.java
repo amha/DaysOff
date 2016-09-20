@@ -11,26 +11,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Acl;
 import com.google.api.services.calendar.model.AclRule;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import amhamogus.com.daysoff.R;
@@ -38,12 +32,12 @@ import amhamogus.com.daysoff.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SharedWithFragment.OnFragmentInteractionListener} interface
+ * {@link CalendarSharedWithFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link SharedWithFragment#newInstance} factory method to
+ * Use the {@link CalendarSharedWithFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SharedWithFragment extends Fragment {
+public class CalendarSharedWithFragment extends Fragment {
 
     String TAG = "SHARED_WITH_FRAGMENT";
 
@@ -54,11 +48,11 @@ public class SharedWithFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     ListView contactList;
 
-    public SharedWithFragment() {
+    public CalendarSharedWithFragment() {
     }
 
-    public static SharedWithFragment newInstance(String accountName) {
-        SharedWithFragment fragment = new SharedWithFragment();
+    public static CalendarSharedWithFragment newInstance(String accountName) {
+        CalendarSharedWithFragment fragment = new CalendarSharedWithFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, accountName);
         fragment.setArguments(args);
@@ -86,7 +80,7 @@ public class SharedWithFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_shared_with, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_calendar_shared, container, false);
         contactList = (ListView)rootView.findViewById(R.id.contact_list);
 
         new GetSharedContactsTask(mCredential).execute();

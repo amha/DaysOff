@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import amhamogus.com.daysoff.ui.CalendarDetailActivity;
+import amhamogus.com.daysoff.ui.CalendarActivity;
 import amhamogus.com.daysoff.ui.CalendarItemFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         if (calendarID != null & calendarName != null) {
             SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
             String name = pref.getString(PREF_ACCOUNT_NAME, null);
-            Intent intent = new Intent(getApplicationContext(), CalendarDetailActivity.class);
+            Intent intent = new Intent(getApplicationContext(), CalendarActivity.class);
             intent.putExtra(ARG_CALENDAR_ID, calendarID);
             intent.putExtra(PREF_ACCOUNT_NAME, name);
             intent.putExtra(ARG_CALENDAR_NAME, calendarName);

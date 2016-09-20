@@ -10,4 +10,4 @@
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
     tools:context="amhamogus.com.daysoff.ui.CalendarItemFragment"
-    tools:listitem="@layout/fragment_calendaritem" />
+    tools:listitem="@layout/row_calendar_item" />

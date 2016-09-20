@@ -8,4 +8,8 @@
 
     <dimen name="card_padding">10dp</dimen>
     <dimen name="card_top_padding">10dp</dimen>
+
+    <!-- Events -->
+    <dimen name="event_row_height">75dp</dimen>
+    <dimen name="event_row_padding_left">32dp</dimen>
 </resources>

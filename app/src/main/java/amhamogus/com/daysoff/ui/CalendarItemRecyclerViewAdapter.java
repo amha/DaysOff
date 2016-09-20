@@ -15,8 +15,8 @@ import java.util.ArrayList;
 /**
  *  Add description.
  */
-public class MyCalendarItemRecyclerViewAdapter
-        extends RecyclerView.Adapter<MyCalendarItemRecyclerViewAdapter.ViewHolder> {
+public class CalendarItemRecyclerViewAdapter
+        extends RecyclerView.Adapter<CalendarItemRecyclerViewAdapter.ViewHolder> {
 
     /**
      * A collection of...
@@ -29,8 +29,8 @@ public class MyCalendarItemRecyclerViewAdapter
      */
     private final OnListFragmentInteractionListener mListener;
 
-    public MyCalendarItemRecyclerViewAdapter(ArrayList<String> items, ArrayList<String> ids,
-                                             OnListFragmentInteractionListener listener) {
+    public CalendarItemRecyclerViewAdapter(ArrayList<String> items, ArrayList<String> ids,
+                                           OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
         calendarID = ids;
@@ -39,7 +39,7 @@ public class MyCalendarItemRecyclerViewAdapter
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_calendaritem, parent, false);
+                .inflate(R.layout.row_calendar_item, parent, false);
         return new ViewHolder(view);
     }
 

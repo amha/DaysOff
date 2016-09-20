@@ -46,7 +46,7 @@ import java.util.List;
 
 import amhamogus.com.daysoff.R;
 
-public class CalendarDetailActivity extends AppCompatActivity implements SharedWithFragment.OnFragmentInteractionListener {
+public class CalendarActivity extends AppCompatActivity implements CalendarSharedWithFragment.OnFragmentInteractionListener {
 
     final String TAG = "CANENDAR_ACTIVITY_TAG";
     static CalendarPickerView calendar;
@@ -85,7 +85,7 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendar_detail);
+        setContentView(R.layout.activity_calendar);
 
         Bundle extras = getIntent().getExtras();
         currentAccountName = extras.getString(ARG_ACCOUNT_NAME);
@@ -167,7 +167,7 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_calendar_detail, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_calendar, container, false);
 
             mProgress = (ProgressBar) rootView.findViewById(R.id.calendar_progressbar);
             mProgress.setVisibility(View.VISIBLE);
@@ -186,7 +186,7 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
                 @Override
                 public void onDateSelected(Date date) {
                     Toast.makeText(getContext(), "date: " + date.toString(), Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getContext(), EventDetailActivity.class);
+                    Intent intent = new Intent(getContext(), EventsActivity.class);
                     startActivity(intent);
                 }
 
@@ -222,7 +222,7 @@ public class CalendarDetailActivity extends AppCompatActivity implements SharedW
                 case 0:
                     return PlaceholderFragment.newInstance(position + 1);
                 case 1:
-                    return SharedWithFragment.newInstance(currentAccountName);
+                    return CalendarSharedWithFragment.newInstance(currentAccountName);
             }
             return null;
         }

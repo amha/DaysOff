@@ -1,12 +1,19 @@
 package amhamogus.com.daysoff.ui;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 import amhamogus.com.daysoff.R;
 
@@ -19,10 +26,11 @@ import amhamogus.com.daysoff.R;
  * create an instance of this fragment.
  */
 public class EventDetailFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private ArrayList<String> tempData;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -31,7 +39,6 @@ public class EventDetailFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     public EventDetailFragment() {
-        // Required empty public constructor
     }
 
     /**
@@ -42,7 +49,6 @@ public class EventDetailFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment EventDetailFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static EventDetailFragment newInstance(String param1, String param2) {
         EventDetailFragment fragment = new EventDetailFragment();
         Bundle args = new Bundle();
@@ -59,16 +65,33 @@ public class EventDetailFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        //TODO:Pass event data from google calendar api
+        tempData = new ArrayList<String>();
+        tempData.add("Title 3");
+        tempData.add("Title 2");
+        tempData.add("Title 1");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_event_detail, container, false);
+        View rootView = inflater.inflate(R.layout.list_events, container, false);
+
+        if (rootView instanceof RecyclerView) {
+            RecyclerView view = (RecyclerView) rootView;
+            LinearLayoutManager layoutManager =
+                    new LinearLayoutManager(getActivity().getApplicationContext());
+            view.setLayoutManager(layoutManager);
+            view.addItemDecoration(new DividerItemDecoration(getContext()));
+            view.setAdapter(new EventsRecyclerViewAdapter(tempData));
+        }
+
+        return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -103,7 +126,40 @@ public class EventDetailFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    public class DividerItemDecoration extends RecyclerView.ItemDecoration {
+
+        private final int[] ATTRS = new int[]{android.R.attr.listDivider};
+
+        private Drawable divider;
+
+        public DividerItemDecoration(Context context){
+            final TypedArray styledAttributes = context.obtainStyledAttributes(ATTRS);
+            divider = styledAttributes.getDrawable(0);
+            styledAttributes.recycle();
+        }
+
+        @Override
+        public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state){
+            int left = parent.getPaddingLeft();
+            int right = parent.getWidth() - parent.getPaddingRight();
+
+            int childCount = parent.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = parent.getChildAt(i);
+
+                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                int top = child.getBottom() + params.bottomMargin;
+                int bottom = top + divider.getIntrinsicHeight();
+
+                divider.setBounds(left, top, right, bottom);
+                divider.draw(canvas);
+            }
+        }
+    }
+
+    //TODO:Add AsycnTask to get event data from google calendar api
 }
