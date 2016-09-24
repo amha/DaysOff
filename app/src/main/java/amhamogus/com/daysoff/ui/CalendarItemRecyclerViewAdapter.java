@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.ui.CalendarItemFragment.OnListFragmentInteractionListener;
-import amhamogus.com.daysoff.ui.dummy.DummyContent.DummyItem;
 
 import java.util.ArrayList;
 

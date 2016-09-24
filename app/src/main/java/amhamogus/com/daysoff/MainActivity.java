@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPreExecute() {
-        // Do nothing
+            // Do nothing
         }
 
         @Override

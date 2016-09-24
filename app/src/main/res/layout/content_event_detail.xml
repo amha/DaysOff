@@ -12,10 +12,15 @@
     tools:context="amhamogus.com.daysoff.ui.EventsActivity"
     tools:showIn="@layout/activity_events">
 
-    <fragment
-        android:name="amhamogus.com.daysoff.ui.EventDetailFragment"
-        android:id="@+id/fragment_event"
+    <FrameLayout
+        android:id="@+id/event_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!--<fragment-->
+        <!--android:id="@+id/fragment_event"-->
+        <!--android:name="amhamogus.com.daysoff.ui.EventDetailFragment"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
 
 </RelativeLayout>

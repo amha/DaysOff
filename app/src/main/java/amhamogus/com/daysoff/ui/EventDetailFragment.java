@@ -5,15 +5,32 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
 import amhamogus.com.daysoff.R;
 
@@ -27,16 +44,18 @@ import amhamogus.com.daysoff.R;
  */
 public class EventDetailFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_ACCOUNT_NAME = "param1";
+    private String accountName;
 
+    private static final String TAG = "EVENT DETAIL FRAGMENT";
     private ArrayList<String> tempData;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
+
+    GoogleAccountCredential mCredential;
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String ARG_CALENDAR_NAME = "calendarName";
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public EventDetailFragment() {
     }
@@ -45,16 +64,21 @@ public class EventDetailFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param name Parameter 1.
      * @return A new instance of fragment EventDetailFragment.
      */
-    public static EventDetailFragment newInstance(String param1, String param2) {
+    public static EventDetailFragment newInstance(String name) {
         EventDetailFragment fragment = new EventDetailFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+
+        if (name != null) {
+            Bundle args = new Bundle();
+            args.putString(ARG_ACCOUNT_NAME, name);
+            fragment.setArguments(args);
+            Log.d(TAG, "name: " + name);
+        }
+        else{
+            Log.d(TAG, "Not passing name");
+        }
         return fragment;
     }
 
@@ -62,9 +86,13 @@ public class EventDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+             accountName = getArguments().getString(ARG_ACCOUNT_NAME);
         }
+
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getContext(), Arrays.asList(SCOPES))
+                .setSelectedAccountName(accountName)
+                .setBackOff(new ExponentialBackOff());
 
         //TODO:Pass event data from google calendar api
         tempData = new ArrayList<String>();
@@ -88,6 +116,7 @@ public class EventDetailFragment extends Fragment {
             view.addItemDecoration(new DividerItemDecoration(getContext()));
             view.setAdapter(new EventsRecyclerViewAdapter(tempData));
         }
+        new getEventsTask(mCredential).execute();
 
         return rootView;
     }
@@ -135,14 +164,14 @@ public class EventDetailFragment extends Fragment {
 
         private Drawable divider;
 
-        public DividerItemDecoration(Context context){
+        public DividerItemDecoration(Context context) {
             final TypedArray styledAttributes = context.obtainStyledAttributes(ATTRS);
             divider = styledAttributes.getDrawable(0);
             styledAttributes.recycle();
         }
 
         @Override
-        public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state){
+        public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
             int left = parent.getPaddingLeft();
             int right = parent.getWidth() - parent.getPaddingRight();
 
@@ -162,4 +191,57 @@ public class EventDetailFragment extends Fragment {
     }
 
     //TODO:Add AsycnTask to get event data from google calendar api
+    private class getEventsTask extends AsyncTask<Void, Void, String> {
+
+        private com.google.api.services.calendar.Calendar eventService = null;
+        private Exception mLastError = null;
+
+        public getEventsTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            eventService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Days Off - Debug")
+                    .build();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String eventList = "";
+            try {
+                getEvents();
+            } catch (IOException io) {
+                Log.e(TAG, "error: " + io);
+            }
+            return "";
+        }
+
+        @NonNull
+        private String getEvents() throws IOException {
+
+            DateTime date = new DateTime(System.currentTimeMillis());
+
+            Events events = eventService.events()
+                    .list("primary")
+                    .setTimeMin(date)
+                    .execute();
+
+            for (Event event : events.getItems()) {
+                Log.d(TAG, "event details : "
+                        + event.getSummary() + " : "
+                        + event.getDescription());
+            }
+            return "";
+        }
+
+        @Override
+        protected void onPreExecute() {
+            //Empty for now
+        }
+
+        @Override
+        protected void onPostExecute(String output) {
+            //Empty for now
+        }
+    }
 }

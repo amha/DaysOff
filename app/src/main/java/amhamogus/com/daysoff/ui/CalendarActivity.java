@@ -187,6 +187,7 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
                 public void onDateSelected(Date date) {
                     Toast.makeText(getContext(), "date: " + date.toString(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getContext(), EventsActivity.class);
+                    intent.putExtra("NAME",currentAccountName);
                     startActivity(intent);
                 }
 
