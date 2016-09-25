@@ -1,4 +1,4 @@
-package amhamogus.com.daysoff.ui;
+package amhamogus.com.daysoff.fragments;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -30,9 +30,9 @@ import com.google.api.services.calendar.model.Events;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 
 import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.adapters.EventsRecyclerViewAdapter;
 
 /**
  * A simple {@link Fragment} subclass.

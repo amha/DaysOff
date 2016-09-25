@@ -1,4 +1,4 @@
-package amhamogus.com.daysoff.ui;
+package amhamogus.com.daysoff.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import amhamogus.com.daysoff.R;
-import amhamogus.com.daysoff.ui.CalendarItemFragment.OnListFragmentInteractionListener;
+import amhamogus.com.daysoff.fragments.MainListFragment.OnListFragmentInteractionListener;
 
 import java.util.ArrayList;
 

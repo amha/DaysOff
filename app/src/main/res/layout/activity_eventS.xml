@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="amhamogus.com.daysoff.ui.EventsActivity">
+    tools:context="amhamogus.com.daysoff.EventsActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

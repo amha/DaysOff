@@ -20,18 +20,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.CalendarActivity"
+            android:name=".CalendarActivity"
             android:label="@string/title_activity_calendar_detail"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ui.EventsActivity"
+            android:name=".EventsActivity"
             android:label="@string/title_activity_event_detail"
-            android:parentActivityName=".ui.CalendarActivity"
+            android:parentActivityName=".CalendarActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="amhamogus.com.daysoff.ui.CalendarActivity" />
+                android:value="amhamogus.com.daysoff.CalendarActivity" />
         </activity>
 
         <meta-data

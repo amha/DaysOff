@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/list_wrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="amhamogus.com.daysoff.MainActivity">
+    tools:context="amhamogus.com.daysoff.MainActivity"/>
 
-   <FrameLayout
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:id="@+id/list_wrapper"/>
-   <!--<fragment-->
-       <!--android:name="amhamogus.com.daysoff.ui.CalendarItemFragment"-->
-       <!--android:layout_width="match_parent"-->
-       <!--android:layout_height="match_parent"-->
-       <!--android:id="@+id/calendar_list"/>-->
+    <!--<FrameLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
 
-</FrameLayout>
+    <!--<fragment-->
+    <!--android:name="amhamogus.com.daysoff.ui.MainListFragment
+    <!-android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:id="@+id/calendar_list"/>-->
+
+

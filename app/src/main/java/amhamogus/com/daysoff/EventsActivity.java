@@ -1,4 +1,4 @@
-package amhamogus.com.daysoff.ui;
+package amhamogus.com.daysoff;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -6,9 +6,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.fragments.EventDetailFragment;
 
 public class EventsActivity extends AppCompatActivity implements EventDetailFragment.OnFragmentInteractionListener {
+
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_FILE = "calendarSessionData";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +23,7 @@ public class EventsActivity extends AppCompatActivity implements EventDetailFrag
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String accountName = getIntent().getExtras().getString("NAME");
+        String accountName = getIntent().getExtras().getString(PREF_ACCOUNT_NAME);
 
         EventDetailFragment fragment = EventDetailFragment.newInstance(accountName);
         FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();

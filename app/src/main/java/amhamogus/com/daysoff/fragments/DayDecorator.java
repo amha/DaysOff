@@ -1,10 +1,4 @@
-package amhamogus.com.daysoff.ui;
-
-import android.app.Application;
-import android.content.Context;
-
-import android.widget.TextView;
-import android.widget.Toast;
+package amhamogus.com.daysoff.fragments;
 
 import com.squareup.timessquare.CalendarCellDecorator;
 import com.squareup.timessquare.CalendarCellView;

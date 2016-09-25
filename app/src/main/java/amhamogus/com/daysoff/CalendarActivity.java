@@ -1,4 +1,4 @@
-package amhamogus.com.daysoff.ui;
+package amhamogus.com.daysoff;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -44,11 +44,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import amhamogus.com.daysoff.EventsActivity;
 import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.fragments.CalendarSharedWithFragment;
+import amhamogus.com.daysoff.fragments.DayDecorator;
 
 public class CalendarActivity extends AppCompatActivity implements CalendarSharedWithFragment.OnFragmentInteractionListener {
 
     final String TAG = "CANENDAR_ACTIVITY_TAG";
+
     static CalendarPickerView calendar;
 
     /**
@@ -66,12 +70,11 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
      */
     private ViewPager mViewPager;
 
-    /**
-     * The key for the list parameter
-     */
     private static final String ARG_CALENDAR_ID = "id";
     private static final String ARG_ACCOUNT_NAME = "accountName";
     private static final String ARG_CALENDAR_NAME = "calendarName";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_FILE = "calendarSessionData";
 
     private static String currentAccountName;
     private static String calendarId;
@@ -120,16 +123,11 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -141,7 +139,7 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class CalendarFragment extends Fragment {
 
         /**
          * The fragment argument representing the section number for this
@@ -149,15 +147,15 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
-        public PlaceholderFragment() {
+        public CalendarFragment() {
         }
 
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
+        public static CalendarFragment newInstance(int sectionNumber) {
+            CalendarFragment fragment = new CalendarFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
@@ -167,15 +165,17 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_calendar, container, false);
+            View rootView = inflater
+                    .inflate(R.layout.fragment_calendar, container, false);
 
-            mProgress = (ProgressBar) rootView.findViewById(R.id.calendar_progressbar);
+            mProgress = (ProgressBar) rootView
+                    .findViewById(R.id.calendar_progressbar);
             mProgress.setVisibility(View.VISIBLE);
 
+            // Initialize calendar widget
             Calendar nextYear = Calendar.getInstance();
             nextYear.add(Calendar.YEAR, 1);
             Date today = new Date();
-
             calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
             calendar.setVisibility(View.INVISIBLE);
             calendar.init(today, nextYear.getTime())
@@ -185,9 +185,8 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
             calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
                 @Override
                 public void onDateSelected(Date date) {
-                    Toast.makeText(getContext(), "date: " + date.toString(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getContext(), EventsActivity.class);
-                    intent.putExtra("NAME",currentAccountName);
+                    intent.putExtra(PREF_ACCOUNT_NAME, currentAccountName);
                     startActivity(intent);
                 }
 
@@ -218,10 +217,10 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
+            // Return a CalendarFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    return CalendarFragment.newInstance(position + 1);
                 case 1:
                     return CalendarSharedWithFragment.newInstance(currentAccountName);
             }
@@ -267,23 +266,19 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
             try {
                 return getEventsFromApi();
             } catch (Exception e) {
-                Log.e(TAG, "AMHA OUT: " + e);
                 cancel(true);
                 return null;
             }
         }
 
         private List<Event> getEventsFromApi() throws IOException {
-            Log.d(TAG, "calling get events method");
             String pageToken = null;
             Events events;
             List<Event> items;
             DateTime now = new DateTime(System.currentTimeMillis());
             //      GregorianCalendar upperBound = new GregorianCalendar(2016, Calendar.SEPTEMBER, 13);
 
-            Log.d(TAG, "about to loop over the service");
             // Iterate over the events in the specified calendar
-
             do {
                 events = mService.events().list("primary")
                         .setPageToken(pageToken)
@@ -327,7 +322,7 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
                 calendar.setVisibility(View.VISIBLE);
 //                returnedCalendarList = output;
 //                if (returnedCalendarList != null) {
-//                    mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
+//                    mList = MainListFragment.newInstance(1, returnedCalendarList);
 //                }
 //
 //                // Add fragment to main activity when we're retrieved

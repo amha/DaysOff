@@ -1,4 +1,4 @@
-package amhamogus.com.daysoff.ui;
+package amhamogus.com.daysoff.fragments;
 
 import android.content.Context;
 import android.net.Uri;

@@ -35,49 +35,41 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import amhamogus.com.daysoff.ui.CalendarActivity;
-import amhamogus.com.daysoff.ui.CalendarItemFragment;
+import amhamogus.com.daysoff.fragments.MainListFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity
-        implements CalendarItemFragment.OnListFragmentInteractionListener,
+        implements MainListFragment.OnListFragmentInteractionListener,
         EasyPermissions.PermissionCallbacks {
 
-    /**
-     * A instance of {@link CalendarItemFragment} that displays a
-     * collection of events.
-     */
-    private CalendarItemFragment mList;
-
-    /**
-     * A collection of {@link CalendarListEntry} associated with
-     * the current users' google account.
-     */
-    private List<CalendarListEntry> returnedCalendarList;
-
-    /**
-     * ID of the user selected calendar.
-     */
-    private String calendarID;
+    public Toast mOutputText;
 
     /**
      * The key for the list parameter.
      */
     private static final String ARG_CALENDAR_ID = "id";
+    private static final String ARG_CALENDAR_NAME = "calendarName";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_FILE = "calendarSessionData";
 
     GoogleAccountCredential mCredential;
-    public Toast mOutputText;
-
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String ARG_CALENDAR_NAME = "calendarName";
-
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+
+    /**
+     * A instance of {@link MainListFragment} that displays a
+     * collection of events.
+     */
+    private MainListFragment mList;
+
+    /**
+     * Collection of {@link CalendarListEntry}
+     */
+    private List<CalendarListEntry> returnedCalendarList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,23 +81,36 @@ public class MainActivity extends AppCompatActivity
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-        getCalendarList();
+        // Recreating activity from saved data
+        if (savedInstanceState != null) {
+
+        } else {
+            getCalendarList();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
     }
 
     @Override
     public void onCalendarSelectedInteraction(String calendarID, String calendarName) {
+
         if (calendarID != null & calendarName != null) {
-            SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences pref =
+                    getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
             String name = pref.getString(PREF_ACCOUNT_NAME, null);
+
             Intent intent = new Intent(getApplicationContext(), CalendarActivity.class);
             intent.putExtra(ARG_CALENDAR_ID, calendarID);
-            intent.putExtra(PREF_ACCOUNT_NAME, name);
             intent.putExtra(ARG_CALENDAR_NAME, calendarName);
+            intent.putExtra(PREF_ACCOUNT_NAME, name);
+
             startActivity(intent);
         } else {
-            // Passing an empty string onClick.
-            Toast.makeText(MainActivity.this, "Please restart the app."
-                    , Toast.LENGTH_SHORT).show();
+            // User calendar has not been loaded.
+            Toast.makeText(MainActivity.this,
+                    "Please restart the app.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -280,16 +285,20 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK && data != null &&
-                        data.getExtras() != null) {
+                if (resultCode == RESULT_OK
+                        && data != null && data.getExtras() != null) {
+
                     String accountName =
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+
+                    // Add users' account name to shared preferences
                     if (accountName != null) {
                         SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
+                                getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
+                        editor.commit();
 
                         mCredential.setSelectedAccountName(accountName);
                         getCalendarList();
@@ -338,12 +347,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        /**
-         * Fetch a list of the next 10 events from the primary calendar.
-         *
-         * @return List of Strings describing returned events.
-         * @throws IOException
-         */
         private List<CalendarListEntry> getDataFromApi() throws IOException {
             CalendarList mList = mService.calendarList().list().execute();
             return mList.getItems();
@@ -351,7 +354,6 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPreExecute() {
-            // Do nothing
         }
 
         @Override
@@ -362,10 +364,8 @@ public class MainActivity extends AppCompatActivity
             } else {
                 returnedCalendarList = output;
                 if (returnedCalendarList != null) {
-                    mList = CalendarItemFragment.newInstance(1, returnedCalendarList);
+                    mList = MainListFragment.newInstance(1, returnedCalendarList);
                 }
-                // Add fragment to main activity when we're retrieved
-                // data from the the server
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.list_wrapper, mList).commit();
             }

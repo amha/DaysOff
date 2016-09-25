@@ -1,4 +1,4 @@
-package amhamogus.com.daysoff.ui;
+package amhamogus.com.daysoff.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.google.api.services.calendar.model.CalendarListEntry;
 
 import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class CalendarItemFragment extends Fragment {
+public class MainListFragment extends Fragment {
 
 
     /**
@@ -57,15 +58,13 @@ public class CalendarItemFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public CalendarItemFragment() {
+    public MainListFragment() {
     }
-
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static CalendarItemFragment newInstance(int columnCount,
-                                                   List<CalendarListEntry> calendarList) {
+    public static MainListFragment newInstance(int columnCount,
+                                               List<CalendarListEntry> calendarList) {
 
-        CalendarItemFragment fragment = new CalendarItemFragment();
+        MainListFragment fragment = new MainListFragment();
         ArrayList<String> calendarListArray = new ArrayList<String>(calendarList.size());
         ArrayList<String> idArray = new ArrayList<>(calendarList.size());
 
