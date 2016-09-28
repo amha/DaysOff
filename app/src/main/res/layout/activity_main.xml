@@ -4,16 +4,21 @@
     android:id="@+id/list_wrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="amhamogus.com.daysoff.MainActivity"/>
+    tools:context="amhamogus.com.daysoff.MainActivity">
 
-    <!--<FrameLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
+    <!--<ProgressBar-->
+        <!--android:layout_width="@dimen/progress_bar_size"-->
+        <!--android:layout_height="@dimen/progress_bar_size"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:layout_marginTop="@dimen/progress_bar_size"-->
+        <!--android:id="@+id/main_activity_progress_bar"-->
+        <!--android:visibility="invisible"/>-->
 
-    <!--<fragment-->
-    <!--android:name="amhamogus.com.daysoff.ui.MainListFragment
-    <!-android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:id="@+id/calendar_list"/>-->
+</FrameLayout>
+
+    <!--<FrameLayout--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent" />-->
+
+    <!--<fragment--><!--android:name="amhamogus.com.daysoff.ui.MainListFragment
+    <!-android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:id="@+id/calendar_list"/>-->
 
 

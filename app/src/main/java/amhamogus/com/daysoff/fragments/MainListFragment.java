@@ -1,21 +1,39 @@
 package amhamogus.com.daysoff.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 
+import amhamogus.com.daysoff.MainActivity;
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,88 +44,81 @@ import java.util.List;
  */
 public class MainListFragment extends Fragment {
 
+    public Toast mOutputText;
+    final String TAG = "AMHA-MAIN-FRAGMENT";
 
-    /**
-     * List of Calendars from Google Calendar
-     */
-    private ArrayList<String> mCalendarList;
-
-    /**
-     * TODO: Determine if this is still needed
-     */
-    private static final String ARG_COLUMN_COUNT = "columnCount";
-
-    /**
-     * The key for the list parameter
-     */
-    private static final String ARG_CALENDAR_LIST = "list";
-
-    /**
-     * TODO: Determine if this is still needed
-     */
+    GoogleAccountCredential mCredential;
     private int mColumnCount = 1;
-
-    /**
-     *
-     */
     private OnListFragmentInteractionListener mListener;
-
     private ArrayList<String> calendarID;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
+    private List<CalendarListEntry> returnedCalendarList;
+    private ArrayList<String> mCalendarList;
+    private RecyclerView recyclerView;
+
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String ARG_COLUMN_COUNT = "columnCount";
+    private static final String ARG_CALENDAR_LIST = "list";
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+
+
     public MainListFragment() {
     }
+
     @SuppressWarnings("unused")
-    public static MainListFragment newInstance(int columnCount,
-                                               List<CalendarListEntry> calendarList) {
+    public static MainListFragment newInstance(int columnCount) {
 
+        Log.d("AMHA MAIN FRAGMENT", "WE'RE RUNNING THE FRAGEMNT");
         MainListFragment fragment = new MainListFragment();
-        ArrayList<String> calendarListArray = new ArrayList<String>(calendarList.size());
-        ArrayList<String> idArray = new ArrayList<>(calendarList.size());
-
-        for (int i = 0; i < calendarList.size(); i++) {
-            calendarListArray.add(calendarList.get(i).getSummary());
-            idArray.add(calendarList.get(i).getId());
-        }
-
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        args.putStringArrayList(ARG_CALENDAR_LIST, calendarListArray);
-        args.putStringArrayList("temp", idArray);
-        fragment.setArguments(args);
+//        Bundle args = new Bundle();
+//        args.putInt(ARG_COLUMN_COUNT, columnCount);
+//        args.putStringArrayList(ARG_CALENDAR_LIST, calendarListArray);
+//        args.putStringArrayList("temp", idArray);
+        //fragment.setArguments(args);
         return fragment;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences pref =
+                getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        String name = pref.getString(PREF_ACCOUNT_NAME, null);
 
         //  parameters instance variables
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-            mCalendarList = getArguments().getStringArrayList(ARG_CALENDAR_LIST);
-            calendarID = getArguments().getStringArrayList("temp");
-        }
+//        if (getArguments() != null) {
+//            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+//            //mCalendarList = getArguments().getStringArrayList(ARG_CALENDAR_LIST);
+//            calendarID = getArguments().getStringArrayList("temp");
+//        }
+
+        // Initialize credentials and service object.
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getActivity().getApplicationContext(), Arrays.asList(SCOPES))
+                .setSelectedAccountName(name)
+                .setBackOff(new ExponentialBackOff());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.list_calendar, container, false);
 
+        View view = inflater.inflate(R.layout.list_calendar, container, false);
+        recyclerView = (RecyclerView) view;
+        new RequestCalendarListTask(mCredential).execute();
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(mCalendarList, calendarID, mListener));
-        }
+//        if (view instanceof RecyclerView) {
+//            //Context context = view.getContext();
+//            recyclerView = (RecyclerView) view;
+//            new RequestCalendarListTask(mCredential).execute();
+////            if (mColumnCount <= 1) {
+////                recyclerView.setLayoutManager(new LinearLayoutManager(context));
+////            } else {
+////                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+////            }
+//            //recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(mCalendarList, calendarID, mListener));
+//        }
         return view;
     }
 
@@ -142,5 +153,103 @@ public class MainListFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         void onCalendarSelectedInteraction(String item, String name);
+    }
+
+    /**
+     * An asynchronous task that handles the Google Calendar API call.
+     * Placing the API calls in their own task ensures the UI stays responsive.
+     */
+    private class RequestCalendarListTask extends AsyncTask<Void, Void, List<CalendarListEntry>> {
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Exception mLastError = null;
+
+        public RequestCalendarListTask(GoogleAccountCredential credential) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+            mService = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Days Off - Debug")
+                    .build();
+        }
+
+        /**
+         * Background task to call Google Calendar API.
+         *
+         * @param params no parameters needed for this task.
+         */
+        @Override
+        protected List<CalendarListEntry> doInBackground(Void... params) {
+            try {
+                Log.d("AMHA MAIN FRAGMENT", "do in background running");
+                return getDataFromApi();
+            } catch (Exception e) {
+                mLastError = e;
+                Log.d(TAG, "error: " + e.toString());
+                cancel(true);
+                return null;
+            }
+        }
+
+        private List<CalendarListEntry> getDataFromApi() throws IOException {
+            CalendarList mList = mService.calendarList().list().execute();
+            Log.d("AMHA MAIN FRAGMENT", "get data running");
+            return mList.getItems();
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onPostExecute(List<CalendarListEntry> output) {
+            Log.d("AMHA MAIN FRAGMENT", "on post execute");
+            if (output == null || output.size() == 0) {
+                // Show toast when the server doesn't return anything
+                mOutputText.makeText(getActivity().getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "output from server: " + output.toString());
+                returnedCalendarList = output;
+                if (returnedCalendarList != null) {
+
+                    ArrayList<String> calendarListArray = new ArrayList<String>(output.size());
+                    ArrayList<String> idArray = new ArrayList<>(output.size());
+
+                    for (int i = 0; i < output.size(); i++) {
+                        calendarListArray.add(output.get(i).getSummary());
+                        idArray.add(output.get(i).getId());
+                    }
+                    if (mColumnCount <= 1) {
+                        recyclerView.setLayoutManager(new LinearLayoutManager(
+                                getContext()));
+                    } else {
+                        recyclerView.setLayoutManager(new GridLayoutManager(
+                                getContext(), mColumnCount));
+                    }
+                    recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(
+                            calendarListArray, calendarID, mListener));
+                }
+            }
+        }
+//        @Override
+//        protected void onCancelled() {
+//
+//            if (mLastError != null) {
+//                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+//                    showGooglePlayServicesAvailabilityErrorDialog(
+//                            ((GooglePlayServicesAvailabilityIOException) mLastError)
+//                                    .getConnectionStatusCode());
+//                } else if (mLastError instanceof UserRecoverableAuthIOException) {
+//                    startActivityForResult(
+//                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+//                            MainActivity.REQUEST_AUTHORIZATION);
+//                } else {
+//                    mOutputText.setText("The following error occurred:\n"
+//                            + mLastError.getMessage());
+//                }
+//            } else {
+//                mOutputText.setText("Request cancelled.");
+//            }
+//        }
     }
 }

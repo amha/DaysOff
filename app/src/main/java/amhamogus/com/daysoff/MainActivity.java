@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity
         EasyPermissions.PermissionCallbacks {
 
     public Toast mOutputText;
+    final String TAG = "AMHA-MAIN-ACTIVITY";
 
     /**
      * The key for the list parameter.
@@ -66,11 +68,6 @@ public class MainActivity extends AppCompatActivity
      */
     private MainListFragment mList;
 
-    /**
-     * Collection of {@link CalendarListEntry}
-     */
-    private List<CalendarListEntry> returnedCalendarList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,16 +78,20 @@ public class MainActivity extends AppCompatActivity
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-        // Recreating activity from saved data
-        if (savedInstanceState != null) {
+        SharedPreferences settings =
+                getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
 
-        } else {
+        if(!settings.contains(PREF_ACCOUNT_NAME)) {
             getCalendarList();
         }
+
+        mList = mList.newInstance(1);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.list_wrapper, mList).commit();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
+    protected void onSaveInstanceState(Bundle outState) {
     }
 
     @Override
@@ -122,8 +123,9 @@ public class MainActivity extends AppCompatActivity
     private void chooseAccount() {
         if (EasyPermissions.hasPermissions(
                 this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
+            String accountName =
+                    getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
+
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
                 getCalendarList();
@@ -264,9 +266,10 @@ public class MainActivity extends AppCompatActivity
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            mOutputText.makeText(this, "No network connection available.", Toast.LENGTH_SHORT).show();
+            mOutputText.makeText(this,
+                    "Network connection not available.", Toast.LENGTH_SHORT).show();
         } else {
-            new RequestCalendarListTask(mCredential).execute();
+            //new RequestCalendarListTask(mCredential).execute();
         }
     }
 
@@ -313,83 +316,4 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * An asynchronous task that handles the Google Calendar API call.
-     * Placing the API calls in their own task ensures the UI stays responsive.
-     */
-    private class RequestCalendarListTask extends AsyncTask<Void, Void, List<CalendarListEntry>> {
-        private com.google.api.services.calendar.Calendar mService = null;
-        private Exception mLastError = null;
-
-        public RequestCalendarListTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-
-            mService = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Days Off - Debug")
-                    .build();
-        }
-
-        /**
-         * Background task to call Google Calendar API.
-         *
-         * @param params no parameters needed for this task.
-         */
-        @Override
-        protected List<CalendarListEntry> doInBackground(Void... params) {
-            try {
-                return getDataFromApi();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        private List<CalendarListEntry> getDataFromApi() throws IOException {
-            CalendarList mList = mService.calendarList().list().execute();
-            return mList.getItems();
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onPostExecute(List<CalendarListEntry> output) {
-            if (output == null || output.size() == 0) {
-                // Show toast when the server doesn't return anything
-                mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
-            } else {
-                returnedCalendarList = output;
-                if (returnedCalendarList != null) {
-                    mList = MainListFragment.newInstance(1, returnedCalendarList);
-                }
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.list_wrapper, mList).commit();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
-                } else {
-                    mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
-                }
-            } else {
-                mOutputText.setText("Request cancelled.");
-            }
-        }
-    }
 }
