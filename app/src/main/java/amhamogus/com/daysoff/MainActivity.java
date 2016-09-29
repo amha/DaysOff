@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -81,13 +82,21 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences settings =
                 getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
 
-        if(!settings.contains(PREF_ACCOUNT_NAME)) {
+        if (!settings.contains(PREF_ACCOUNT_NAME)) {
             getCalendarList();
         }
 
-        mList = mList.newInstance(1);
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.list_wrapper, mList).commit();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        mList = (MainListFragment) fragmentManager.findFragmentByTag("list");
+
+        if (mList == null) {
+            mList = mList.newInstance(1);
+            fragmentManager
+                    .beginTransaction()
+                    .add(R.id.list_wrapper, mList, "list")
+                    .commit();
+        }
+
     }
 
     @Override

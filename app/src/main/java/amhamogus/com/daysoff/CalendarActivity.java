@@ -289,12 +289,12 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
                 pageToken = events.getNextPageToken();
             }
             while (pageToken != null);
-            Log.d(TAG, "about to return to post execute");
             return items;
         }
 
         @Override
         protected void onPreExecute() {
+            Log.d(TAG, "calling google api");
         }
 
         @Override

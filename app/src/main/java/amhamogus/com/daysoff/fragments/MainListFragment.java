@@ -51,6 +51,7 @@ public class MainListFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private ArrayList<String> calendarID;
+    ArrayList<String> idArray;
 
     private List<CalendarListEntry> returnedCalendarList;
     private ArrayList<String> mCalendarList;
@@ -75,25 +76,19 @@ public class MainListFragment extends Fragment {
 //        args.putInt(ARG_COLUMN_COUNT, columnCount);
 //        args.putStringArrayList(ARG_CALENDAR_LIST, calendarListArray);
 //        args.putStringArrayList("temp", idArray);
-        //fragment.setArguments(args);
+//        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+
         SharedPreferences pref =
                 getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         String name = pref.getString(PREF_ACCOUNT_NAME, null);
 
-        //  parameters instance variables
-//        if (getArguments() != null) {
-//            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-//            //mCalendarList = getArguments().getStringArrayList(ARG_CALENDAR_LIST);
-//            calendarID = getArguments().getStringArrayList("temp");
-//        }
-
-        // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getActivity().getApplicationContext(), Arrays.asList(SCOPES))
                 .setSelectedAccountName(name)
@@ -106,19 +101,11 @@ public class MainListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.list_calendar, container, false);
         recyclerView = (RecyclerView) view;
-        new RequestCalendarListTask(mCredential).execute();
-        // Set the adapter
-//        if (view instanceof RecyclerView) {
-//            //Context context = view.getContext();
-//            recyclerView = (RecyclerView) view;
-//            new RequestCalendarListTask(mCredential).execute();
-////            if (mColumnCount <= 1) {
-////                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-////            } else {
-////                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-////            }
-//            //recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(mCalendarList, calendarID, mListener));
-//        }
+
+        if(savedInstanceState == null) {
+            new RequestCalendarListTask(mCredential).execute();
+        }
+
         return view;
     }
 
@@ -181,11 +168,9 @@ public class MainListFragment extends Fragment {
         @Override
         protected List<CalendarListEntry> doInBackground(Void... params) {
             try {
-                Log.d("AMHA MAIN FRAGMENT", "do in background running");
                 return getDataFromApi();
             } catch (Exception e) {
                 mLastError = e;
-                Log.d(TAG, "error: " + e.toString());
                 cancel(true);
                 return null;
             }
@@ -193,27 +178,25 @@ public class MainListFragment extends Fragment {
 
         private List<CalendarListEntry> getDataFromApi() throws IOException {
             CalendarList mList = mService.calendarList().list().execute();
-            Log.d("AMHA MAIN FRAGMENT", "get data running");
             return mList.getItems();
         }
 
         @Override
         protected void onPreExecute() {
+            Log.d(TAG, "calling google api");
         }
 
         @Override
         protected void onPostExecute(List<CalendarListEntry> output) {
-            Log.d("AMHA MAIN FRAGMENT", "on post execute");
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
                 mOutputText.makeText(getActivity().getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
             } else {
-                Log.d(TAG, "output from server: " + output.toString());
                 returnedCalendarList = output;
                 if (returnedCalendarList != null) {
 
                     ArrayList<String> calendarListArray = new ArrayList<String>(output.size());
-                    ArrayList<String> idArray = new ArrayList<>(output.size());
+                    idArray = new ArrayList<>(output.size());
 
                     for (int i = 0; i < output.size(); i++) {
                         calendarListArray.add(output.get(i).getSummary());
@@ -227,7 +210,7 @@ public class MainListFragment extends Fragment {
                                 getContext(), mColumnCount));
                     }
                     recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(
-                            calendarListArray, calendarID, mListener));
+                            calendarListArray, idArray, mListener));
                 }
             }
         }
