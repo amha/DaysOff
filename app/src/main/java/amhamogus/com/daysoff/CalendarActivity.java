@@ -2,58 +2,25 @@ package amhamogus.com.daysoff;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
-import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
-
-import com.squareup.timessquare.CalendarCellDecorator;
-import com.squareup.timessquare.CalendarPickerView;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
-import amhamogus.com.daysoff.EventsActivity;
-import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.fragments.CalendarFragment;
 import amhamogus.com.daysoff.fragments.CalendarSharedWithFragment;
-import amhamogus.com.daysoff.fragments.DayDecorator;
+import amhamogus.com.daysoff.model.EventCollection;
 
-public class CalendarActivity extends AppCompatActivity implements CalendarSharedWithFragment.OnFragmentInteractionListener {
-
-    final String TAG = "CANENDAR_ACTIVITY_TAG";
-
-    static CalendarPickerView calendar;
+public class CalendarActivity extends AppCompatActivity
+        implements CalendarSharedWithFragment.OnFragmentInteractionListener, CalendarFragment.OnCalendarSelectionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -74,16 +41,11 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
     private static final String ARG_ACCOUNT_NAME = "accountName";
     private static final String ARG_CALENDAR_NAME = "calendarName";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String PREF_FILE = "calendarSessionData";
 
     private static String currentAccountName;
     private static String calendarId;
     private static String calendarName;
 
-    private static ProgressBar mProgress;
-
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,12 +68,16 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        mCredential = GoogleAccountCredential
-                .usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES))
-                .setSelectedAccountName(currentAccountName)
-                .setBackOff(new ExponentialBackOff());
+    }
 
-        new RequestEventsTask(mCredential).execute();
+    public void onCalendarSelected(Date date, EventCollection eventCollection){
+
+        Intent intent = new Intent(getApplicationContext(), EventsActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(PREF_ACCOUNT_NAME,currentAccountName);
+        bundle.putParcelable("LIST", eventCollection);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     @Override
@@ -134,74 +100,6 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
     @Override
     public void onContactSelected(Uri uri) {
         // Do nothing, this may not be needed
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class CalendarFragment extends Fragment {
-
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public CalendarFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static CalendarFragment newInstance(int sectionNumber) {
-            CalendarFragment fragment = new CalendarFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater
-                    .inflate(R.layout.fragment_calendar, container, false);
-
-            mProgress = (ProgressBar) rootView
-                    .findViewById(R.id.calendar_progressbar);
-            mProgress.setVisibility(View.VISIBLE);
-
-            // Initialize calendar widget
-            Calendar nextYear = Calendar.getInstance();
-            nextYear.add(Calendar.YEAR, 1);
-            Date today = new Date();
-            calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
-            calendar.setVisibility(View.INVISIBLE);
-            calendar.init(today, nextYear.getTime())
-                    .inMode(CalendarPickerView.SelectionMode.MULTIPLE)
-                    .withSelectedDate(today);
-
-            calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
-                @Override
-                public void onDateSelected(Date date) {
-                    Intent intent = new Intent(getContext(), EventsActivity.class);
-                    intent.putExtra(PREF_ACCOUNT_NAME, currentAccountName);
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onDateUnselected(Date date) {
-                }
-            });
-
-            //Hook into calendar widget
-            List<CalendarCellDecorator> decoratorList = new ArrayList<>();
-            decoratorList.add(new DayDecorator());
-            calendar.setDecorators(decoratorList);
-
-            return rootView;
-        }
     }
 
     /**
@@ -244,94 +142,4 @@ public class CalendarActivity extends AppCompatActivity implements CalendarShare
             return null;
         }
     }
-
-    /**
-     * Request a list of events for a given calendar.
-     */
-    private class RequestEventsTask extends AsyncTask<Void, Void, List<Event>> {
-
-        private com.google.api.services.calendar.Calendar mService = null;
-
-        public RequestEventsTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Days Off - Debug")
-                    .build();
-        }
-
-        @Override
-        protected List<Event> doInBackground(Void... params) {
-            try {
-                return getEventsFromApi();
-            } catch (Exception e) {
-                cancel(true);
-                return null;
-            }
-        }
-
-        private List<Event> getEventsFromApi() throws IOException {
-            String pageToken = null;
-            Events events;
-            List<Event> items;
-            DateTime now = new DateTime(System.currentTimeMillis());
-            //      GregorianCalendar upperBound = new GregorianCalendar(2016, Calendar.SEPTEMBER, 13);
-
-            // Iterate over the events in the specified calendar
-            do {
-                events = mService.events().list("primary")
-                        .setPageToken(pageToken)
-                        .setTimeMin(now)
-                        .setMaxResults(20)
-                        .execute();
-                items = events.getItems();
-                pageToken = events.getNextPageToken();
-            }
-            while (pageToken != null);
-            return items;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "calling google api");
-        }
-
-        @Override
-        protected void onPostExecute(List<Event> output) {
-
-            Log.d(TAG, "Starting post execute");
-            if (output == null || output.size() == 0) {
-                // Show toast when the server doesn't return anything
-                // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
-            } else {
-                Collection<Date> dates = new ArrayList<Date>();
-
-                for (int i = 0; i < output.size(); i++) {
-
-                    Log.d(TAG, "collection value: " + i + " : " + output.get(i).getStart().getDateTime().getValue());
-                    //    String temp = output.get(i).getStart().getDate().toString();
-
-                    //              Date date = new SimpleDateFormat("yyyy-MM-dd").parse(temp);
-                    Date date = new Date(output.get(i).getStart().getDateTime().getValue());
-                    dates.add(date);
-                }
-                //  mProgress.setVisibility(View.INVISIBLE);
-                calendar.highlightDates(dates);
-                calendar.setVisibility(View.VISIBLE);
-//                returnedCalendarList = output;
-//                if (returnedCalendarList != null) {
-//                    mList = MainListFragment.newInstance(1, returnedCalendarList);
-//                }
-//
-//                // Add fragment to main activity when we're retrieved
-//                // data from the the server
-//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//                transaction.replace(R.id.list_wrapper, mList).commit();
-            }
-        }
-
-    }
-
 }

@@ -1,12 +1,17 @@
 package amhamogus.com.daysoff;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import java.util.List;
+
 import amhamogus.com.daysoff.fragments.EventDetailFragment;
+import amhamogus.com.daysoff.model.DaysOffEvent;
+import amhamogus.com.daysoff.model.EventCollection;
 
 public class EventsActivity extends AppCompatActivity implements EventDetailFragment.OnFragmentInteractionListener {
 
@@ -23,10 +28,14 @@ public class EventsActivity extends AppCompatActivity implements EventDetailFrag
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String accountName = getIntent().getExtras().getString(PREF_ACCOUNT_NAME);
+        Intent intent = getIntent();
+        String accountName = intent.getExtras().getString(PREF_ACCOUNT_NAME);
+
+        EventCollection eventCollection = intent.getExtras().getParcelable("LIST");
+        List<DaysOffEvent> eventList = eventCollection.getEvents();
 
         EventDetailFragment fragment = EventDetailFragment.newInstance(accountName);
-        FragmentTransaction transaction =getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.event_frame, fragment).commit();
     }
 

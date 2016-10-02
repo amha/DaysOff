@@ -1,16 +1,15 @@
 package amhamogus.com.daysoff.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.fragments.MainListFragment.OnListFragmentInteractionListener;
-
-import java.util.ArrayList;
 
 /**
  *  Add description.

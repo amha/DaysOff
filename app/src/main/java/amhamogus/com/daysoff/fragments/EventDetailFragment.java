@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
@@ -46,8 +44,6 @@ public class EventDetailFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_ACCOUNT_NAME = "param1";
     private String accountName;
-
-    private static final String TAG = "EVENT DETAIL FRAGMENT";
     private ArrayList<String> tempData;
 
     private OnFragmentInteractionListener mListener;
@@ -74,10 +70,8 @@ public class EventDetailFragment extends Fragment {
             Bundle args = new Bundle();
             args.putString(ARG_ACCOUNT_NAME, name);
             fragment.setArguments(args);
-            Log.d(TAG, "name: " + name);
         }
         else{
-            Log.d(TAG, "Not passing name");
         }
         return fragment;
     }
@@ -94,7 +88,6 @@ public class EventDetailFragment extends Fragment {
                 .setSelectedAccountName(accountName)
                 .setBackOff(new ExponentialBackOff());
 
-        //TODO:Pass event data from google calendar api
         tempData = new ArrayList<String>();
         tempData.add("Title 3");
         tempData.add("Title 2");
@@ -116,7 +109,7 @@ public class EventDetailFragment extends Fragment {
             view.addItemDecoration(new DividerItemDecoration(getContext()));
             view.setAdapter(new EventsRecyclerViewAdapter(tempData));
         }
-        new getEventsTask(mCredential).execute();
+        //new getEventsTask(mCredential).execute();
 
         return rootView;
     }
@@ -190,7 +183,6 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
-    //TODO:Add AsycnTask to get event data from google calendar api
     private class getEventsTask extends AsyncTask<Void, Void, String> {
 
         private com.google.api.services.calendar.Calendar eventService = null;
@@ -211,7 +203,6 @@ public class EventDetailFragment extends Fragment {
             try {
                 getEvents();
             } catch (IOException io) {
-                Log.e(TAG, "error: " + io);
             }
             return "";
         }
@@ -226,11 +217,9 @@ public class EventDetailFragment extends Fragment {
                     .setTimeMin(date)
                     .execute();
 
-            for (Event event : events.getItems()) {
-                Log.d(TAG, "event details : "
-                        + event.getSummary() + " : "
-                        + event.getDescription());
-            }
+//            for (Event event : events.getItems()) {
+//
+//            }
             return "";
         }
 

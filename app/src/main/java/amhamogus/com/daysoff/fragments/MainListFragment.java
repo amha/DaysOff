@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,8 +16,6 @@ import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -27,14 +24,13 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 
-import amhamogus.com.daysoff.MainActivity;
-import amhamogus.com.daysoff.R;
-import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
 
 /**
  * A fragment representing a list of Items.
@@ -70,7 +66,6 @@ public class MainListFragment extends Fragment {
     @SuppressWarnings("unused")
     public static MainListFragment newInstance(int columnCount) {
 
-        Log.d("AMHA MAIN FRAGMENT", "WE'RE RUNNING THE FRAGEMNT");
         MainListFragment fragment = new MainListFragment();
 //        Bundle args = new Bundle();
 //        args.putInt(ARG_COLUMN_COUNT, columnCount);
