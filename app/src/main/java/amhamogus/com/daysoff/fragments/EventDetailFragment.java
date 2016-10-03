@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,9 +29,12 @@ import com.google.api.services.calendar.model.Events;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.adapters.EventsRecyclerViewAdapter;
+import amhamogus.com.daysoff.model.DaysOffEvent;
+import amhamogus.com.daysoff.model.EventCollection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,13 +48,14 @@ public class EventDetailFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_ACCOUNT_NAME = "param1";
     private String accountName;
-    private ArrayList<String> tempData;
+    private EventCollection events;
 
     private OnFragmentInteractionListener mListener;
 
     GoogleAccountCredential mCredential;
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String ARG_CALENDAR_NAME = "calendarName";
+    private static final String ARG_EVENT_LIST = "eventList";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public EventDetailFragment() {
@@ -63,15 +68,15 @@ public class EventDetailFragment extends Fragment {
      * @param name Parameter 1.
      * @return A new instance of fragment EventDetailFragment.
      */
-    public static EventDetailFragment newInstance(String name) {
+    public static EventDetailFragment newInstance(String name, EventCollection eventList) {
         EventDetailFragment fragment = new EventDetailFragment();
 
         if (name != null) {
             Bundle args = new Bundle();
             args.putString(ARG_ACCOUNT_NAME, name);
+            args.putParcelable(ARG_EVENT_LIST, eventList);
             fragment.setArguments(args);
-        }
-        else{
+        } else {
         }
         return fragment;
     }
@@ -80,7 +85,9 @@ public class EventDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-             accountName = getArguments().getString(ARG_ACCOUNT_NAME);
+
+            accountName = getArguments().getString(ARG_ACCOUNT_NAME);
+            events = getArguments().getParcelable(ARG_EVENT_LIST);
         }
 
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -88,10 +95,6 @@ public class EventDetailFragment extends Fragment {
                 .setSelectedAccountName(accountName)
                 .setBackOff(new ExponentialBackOff());
 
-        tempData = new ArrayList<String>();
-        tempData.add("Title 3");
-        tempData.add("Title 2");
-        tempData.add("Title 1");
     }
 
     @Override
@@ -101,14 +104,27 @@ public class EventDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.list_events, container, false);
 
-        if (rootView instanceof RecyclerView) {
-            RecyclerView view = (RecyclerView) rootView;
+        CardView card = (CardView)rootView.findViewById(R.id.emptyEventList);
+        RecyclerView view = (RecyclerView) rootView.findViewById(R.id.event_list);
+
+        if(events.getEvents().size() > 0){
+
+            // Hide user call to action
+            card.setVisibility(View.INVISIBLE);
+
+            // Populate the recycler view with events
             LinearLayoutManager layoutManager =
                     new LinearLayoutManager(getActivity().getApplicationContext());
             view.setLayoutManager(layoutManager);
             view.addItemDecoration(new DividerItemDecoration(getContext()));
-            view.setAdapter(new EventsRecyclerViewAdapter(tempData));
+            view.setAdapter(new EventsRecyclerViewAdapter(events.getEvents()));
         }
+        else {
+            // No events found. Show a call to action
+            // for users to create an event
+            view.setVisibility(View.INVISIBLE);
+        }
+
         //new getEventsTask(mCredential).execute();
 
         return rootView;

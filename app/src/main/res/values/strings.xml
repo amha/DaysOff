@@ -8,7 +8,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <!-- Event Detail Sceen -->
+    <!-- Event Detail Screen -->
     <string name="when">When:</string>
     <string name="what">What:</string>
     <string name="who">Who:</string>
@@ -17,6 +17,11 @@
     <string name="afternoon">Afternoon</string>
     <string name="evening">Evening</string>
 
-
+    <!-- Add/Edit Event -->
     <string name="event_title">Event Title</string>
+    <string name="event_form_summary">Name</string>
+    <string name="event_form_start_time">Start Time:</string>
+    <string name="event_form_end_time">End Time:</string>
+    <string name="title_activity_add_event">AddEventActivity</string>
+    <string name="add_event_save_btn">Save</string>
 </resources>

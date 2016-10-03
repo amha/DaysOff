@@ -10,13 +10,18 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import amhamogus.com.daysoff.fragments.CalendarFragment;
 import amhamogus.com.daysoff.fragments.CalendarSharedWithFragment;
+import amhamogus.com.daysoff.model.DaysOffEvent;
 import amhamogus.com.daysoff.model.EventCollection;
 
 public class CalendarActivity extends AppCompatActivity
@@ -41,6 +46,7 @@ public class CalendarActivity extends AppCompatActivity
     private static final String ARG_ACCOUNT_NAME = "accountName";
     private static final String ARG_CALENDAR_NAME = "calendarName";
     private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String ARG_EVENT_LIST = "eventList";
 
     private static String currentAccountName;
     private static String calendarId;
@@ -70,12 +76,33 @@ public class CalendarActivity extends AppCompatActivity
 
     }
 
-    public void onCalendarSelected(Date date, EventCollection eventCollection){
+    public void onCalendarSelected(Date date, EventCollection eventCollection) {
 
         Intent intent = new Intent(getApplicationContext(), EventsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString(PREF_ACCOUNT_NAME,currentAccountName);
-        bundle.putParcelable("LIST", eventCollection);
+
+        String input = eventCollection.getEvents().get(0).getStartTime();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date eventDate;
+
+        List<DaysOffEvent> eventsOnASelectedDate = new ArrayList<DaysOffEvent>();
+
+        // Find events from the events collection that
+        // match to user selected calendar date
+        for (int i = 0; i < eventCollection.getEvents().size(); i++) {
+            try {
+                eventDate = format.parse(eventCollection.getEvents().get(i).getStartTime());
+                if (date.compareTo(eventDate) == 0) {
+                    eventsOnASelectedDate.add(eventCollection.getEvents().get(i));
+                }
+            } catch (java.text.ParseException e) {
+                Log.d("AMHA", "Error parsing date: " + e);
+            }
+        }
+
+        EventCollection collectionOnASingleDay = new EventCollection(eventsOnASelectedDate);
+        bundle.putString(PREF_ACCOUNT_NAME, currentAccountName);
+        bundle.putParcelable(ARG_EVENT_LIST, collectionOnASingleDay);
         intent.putExtras(bundle);
         startActivity(intent);
     }

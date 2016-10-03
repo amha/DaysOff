@@ -87,7 +87,6 @@ public class CalendarSharedWithFragment extends Fragment {
         return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onContactSelected(uri);
@@ -122,7 +121,6 @@ public class CalendarSharedWithFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onContactSelected(Uri uri);
     }
 

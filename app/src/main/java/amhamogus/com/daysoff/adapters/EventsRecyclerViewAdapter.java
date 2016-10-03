@@ -7,17 +7,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.model.DaysOffEvent;
 
 /**
  * Created by amhamogus on 9/15/16.
  */
 public class EventsRecyclerViewAdapter extends RecyclerView.Adapter<EventsRecyclerViewAdapter.ViewHolder> {
 
-    private ArrayList<String> dataModel;
+    private List<DaysOffEvent> dataModel;
 
-    public EventsRecyclerViewAdapter(ArrayList<String> data) {
+    public EventsRecyclerViewAdapter(List<DaysOffEvent> data) {
         dataModel = data;
     }
 
@@ -30,7 +32,7 @@ public class EventsRecyclerViewAdapter extends RecyclerView.Adapter<EventsRecycl
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.mTextView.setText(dataModel.get(position));
+        holder.mTextView.setText(dataModel.get(position).getEventSummary());
     }
 
     @Override
