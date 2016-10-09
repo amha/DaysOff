@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <item
-        android:id="@+id/action_menu"
+        android:id="@+id/action_save_event"
         android:orderInCategory="100"
         android:title="@string/add_event_save_btn"
         app:showAsAction="always" />

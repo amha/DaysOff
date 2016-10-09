@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="32dp"
-
         android:orientation="vertical">
 
         <EditText
@@ -19,8 +18,9 @@
             android:layout_marginBottom="10dp"
             android:ems="10"
             android:hint="@string/event_title"
-            android:inputType="textPersonName"
-            android:textSize="36sp" />
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:textSize="24sp"/>
 
         <View
             android:layout_width="match_parent"
@@ -79,6 +79,7 @@
                 android:id="@+id/end_time_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="7dp"
                 android:text="@string/event_form_end_time" />
 
             <Button
@@ -90,6 +91,62 @@
                 android:text="Button" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#cccccc" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_add_location_black_24dp" />
+
+            <TextView
+                android:id="@+id/activity_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="@string/event_form_activity_title"
+                android:textSize="16dp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:paddingLeft="42dp">
+
+            <CheckBox
+                android:id="@+id/event_checkbox_food"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/event_form_checkbox_food" />
+
+            <CheckBox
+                android:id="@+id/event_checkbox_movie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/event_form_checkbox_movie" />
+
+            <CheckBox
+                android:id="@+id/event_checkbox_outdoors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="@string/event_form_checkbox_outdoors" />
+        </LinearLayout>
 
     </LinearLayout>
 </FrameLayout>

@@ -104,10 +104,10 @@ public class EventDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.list_events, container, false);
 
-        CardView card = (CardView)rootView.findViewById(R.id.emptyEventList);
+        CardView card = (CardView) rootView.findViewById(R.id.emptyEventList);
         RecyclerView view = (RecyclerView) rootView.findViewById(R.id.event_list);
 
-        if(events.getEvents().size() > 0){
+        if (events.getEvents().size() > 0) {
 
             // Hide user call to action
             card.setVisibility(View.INVISIBLE);
@@ -118,8 +118,7 @@ public class EventDetailFragment extends Fragment {
             view.setLayoutManager(layoutManager);
             view.addItemDecoration(new DividerItemDecoration(getContext()));
             view.setAdapter(new EventsRecyclerViewAdapter(events.getEvents()));
-        }
-        else {
+        } else {
             // No events found. Show a call to action
             // for users to create an event
             view.setVisibility(View.INVISIBLE);

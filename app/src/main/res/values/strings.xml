@@ -26,4 +26,14 @@
     <string name="title_activity_add_event">AddEventActivity</string>
     <string name="add_event_save_btn">Save</string>
 
+    <string name="event_form_activity_title">Activity</string>
+    <string name="event_form_checkbox_food">Have a meal</string>
+    <string name="event_form_checkbox_movie">Watch a Movie</string>
+    <string name="event_form_checkbox_outdoors">Go for a Walk</string>
+
+    <!-- Errors -->
+    <string name="event_form_error_summary">You need a summary, more than 4 characters.</string>
+    <string name="event_form_error_checkboxes">Pick at least 1 activity.</string>
+
+
 </resources>
