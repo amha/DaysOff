@@ -1,25 +1,27 @@
 package amhamogus.com.daysoff.fragments;
 
 import android.app.DialogFragment;
-import android.content.Context;
-import android.net.Uri;
+import android.app.Fragment;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
+import android.widget.TimePicker;
 
 import java.util.Calendar;
 
 import amhamogus.com.daysoff.R;
 
 
-public class AddEventFragment extends Fragment {
+public class AddEventFragment extends Fragment implements View.OnClickListener,
+        TimePickerDialog.OnTimeSetListener {
+
+    TextView timeLabel;
+
+    private final String REQUEST_TIME = "requestTime";
 
     public AddEventFragment() {
     }
@@ -32,7 +34,6 @@ public class AddEventFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -45,12 +46,27 @@ public class AddEventFragment extends Fragment {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        TextView startTimeLabel = (TextView)rootView.findViewById(R.id.start_time_btn);
+        TextView startTimeLabel = (TextView) rootView.findViewById(R.id.start_time_btn);
         startTimeLabel.setText("" + hour + ":" + minute);
+        startTimeLabel.setOnClickListener(this);
 
-        TextView endTimeLabel = (TextView)rootView.findViewById(R.id.end_time_btn);
+        TextView endTimeLabel = (TextView) rootView.findViewById(R.id.end_time_btn);
         endTimeLabel.setText("" + hour + ":" + minute);
+        endTimeLabel.setOnClickListener(this);
 
         return rootView;
+    }
+
+    @Override
+    public void onClick(View view) {
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.setTargetFragment(this, 0);
+        timeLabel = (TextView)view;
+        newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    @Override
+    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+        timeLabel.setText(i + ":" + i1);
     }
 }

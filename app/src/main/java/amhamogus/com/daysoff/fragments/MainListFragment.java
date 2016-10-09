@@ -185,7 +185,8 @@ public class MainListFragment extends Fragment {
         protected void onPostExecute(List<CalendarListEntry> output) {
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
-                mOutputText.makeText(getActivity().getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
+                mOutputText.makeText(getActivity().getApplicationContext(),
+                        "No results returned.", Toast.LENGTH_SHORT).show();
             } else {
                 returnedCalendarList = output;
                 if (returnedCalendarList != null) {
@@ -209,25 +210,5 @@ public class MainListFragment extends Fragment {
                 }
             }
         }
-//        @Override
-//        protected void onCancelled() {
-//
-//            if (mLastError != null) {
-//                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-//                    showGooglePlayServicesAvailabilityErrorDialog(
-//                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-//                                    .getConnectionStatusCode());
-//                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-//                    startActivityForResult(
-//                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-//                            MainActivity.REQUEST_AUTHORIZATION);
-//                } else {
-//                    mOutputText.setText("The following error occurred:\n"
-//                            + mLastError.getMessage());
-//                }
-//            } else {
-//                mOutputText.setText("Request cancelled.");
-//            }
-//        }
     }
 }

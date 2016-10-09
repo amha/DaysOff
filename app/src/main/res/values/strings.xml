@@ -18,10 +18,12 @@
     <string name="evening">Evening</string>
 
     <!-- Add/Edit Event -->
-    <string name="event_title">Event Title</string>
+    <string name="event_title">Title</string>
     <string name="event_form_summary">Name</string>
-    <string name="event_form_start_time">Start Time:</string>
-    <string name="event_form_end_time">End Time:</string>
+    <string name="event_form_time">Time</string>
+    <string name="event_form_start_time">Start:</string>
+    <string name="event_form_end_time">End:</string>
     <string name="title_activity_add_event">AddEventActivity</string>
     <string name="add_event_save_btn">Save</string>
+
 </resources>
