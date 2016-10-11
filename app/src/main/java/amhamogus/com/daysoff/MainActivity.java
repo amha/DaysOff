@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity
         EasyPermissions.PermissionCallbacks {
 
     public Toast mOutputText;
-    final String TAG = "AMHA-MAIN-ACTIVITY";
 
     /**
      * The key for the list parameter.
@@ -82,7 +81,6 @@ public class MainActivity extends AppCompatActivity
                     .add(R.id.list_wrapper, mList, "list")
                     .commit();
         }
-
     }
 
     @Override
@@ -263,8 +261,6 @@ public class MainActivity extends AppCompatActivity
         } else if (!isDeviceOnline()) {
             mOutputText.makeText(this,
                     "Network connection not available.", Toast.LENGTH_SHORT).show();
-        } else {
-            //new RequestCalendarListTask(mCredential).execute();
         }
     }
 

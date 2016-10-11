@@ -5,15 +5,14 @@ import com.squareup.timessquare.CalendarCellView;
 
 import java.util.Date;
 
-
 /**
- * Created by amhamogus on 8/28/16.
+ * Callback used to change the background color of
+ * calendar cells.
  */
-public class DayDecorator implements CalendarCellDecorator {
+class DayDecorator implements CalendarCellDecorator {
 
     @Override
     public void decorate(CalendarCellView cellView, Date date){
        // Toast.makeText(this, "Testing", Toast.LENGTH_SHORT).show();
-
     }
 }

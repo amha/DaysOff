@@ -5,13 +5,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -25,7 +24,6 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,22 +39,16 @@ import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
 public class MainListFragment extends Fragment {
 
     public Toast mOutputText;
-    final String TAG = "AMHA-MAIN-FRAGMENT";
 
     GoogleAccountCredential mCredential;
-    private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-    private ArrayList<String> calendarID;
-    ArrayList<String> idArray;
 
     private List<CalendarListEntry> returnedCalendarList;
-    private ArrayList<String> mCalendarList;
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_FILE = "calendarSessionData";
-    private static final String ARG_COLUMN_COUNT = "columnCount";
-    private static final String ARG_CALENDAR_LIST = "list";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
 
@@ -65,14 +57,7 @@ public class MainListFragment extends Fragment {
 
     @SuppressWarnings("unused")
     public static MainListFragment newInstance(int columnCount) {
-
-        MainListFragment fragment = new MainListFragment();
-//        Bundle args = new Bundle();
-//        args.putInt(ARG_COLUMN_COUNT, columnCount);
-//        args.putStringArrayList(ARG_CALENDAR_LIST, calendarListArray);
-//        args.putStringArrayList("temp", idArray);
-//        fragment.setArguments(args);
-        return fragment;
+        return new MainListFragment();
     }
 
     @Override
@@ -95,9 +80,11 @@ public class MainListFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.list_calendar, container, false);
-        recyclerView = (RecyclerView) view;
+        recyclerView = (RecyclerView) view.findViewById(R.id.list);
+        progressBar = (ProgressBar) view.findViewById(R.id.main_progressbar);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
+            recyclerView.setVisibility(View.INVISIBLE);
             new RequestCalendarListTask(mCredential).execute();
         }
 
@@ -145,7 +132,7 @@ public class MainListFragment extends Fragment {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
 
-        public RequestCalendarListTask(GoogleAccountCredential credential) {
+        RequestCalendarListTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
@@ -177,11 +164,6 @@ public class MainListFragment extends Fragment {
         }
 
         @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "calling google api");
-        }
-
-        @Override
         protected void onPostExecute(List<CalendarListEntry> output) {
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
@@ -189,25 +171,13 @@ public class MainListFragment extends Fragment {
                         "No results returned.", Toast.LENGTH_SHORT).show();
             } else {
                 returnedCalendarList = output;
-                if (returnedCalendarList != null) {
+                recyclerView.setLayoutManager(
+                        new LinearLayoutManager(getContext()));
+                recyclerView.setAdapter(
+                        new CalendarItemRecyclerViewAdapter(output, mListener));
+                recyclerView.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
 
-                    ArrayList<String> calendarListArray = new ArrayList<String>(output.size());
-                    idArray = new ArrayList<>(output.size());
-
-                    for (int i = 0; i < output.size(); i++) {
-                        calendarListArray.add(output.get(i).getSummary());
-                        idArray.add(output.get(i).getId());
-                    }
-                    if (mColumnCount <= 1) {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(
-                                getContext()));
-                    } else {
-                        recyclerView.setLayoutManager(new GridLayoutManager(
-                                getContext(), mColumnCount));
-                    }
-                    recyclerView.setAdapter(new CalendarItemRecyclerViewAdapter(
-                            calendarListArray, idArray, mListener));
-                }
             }
         }
     }

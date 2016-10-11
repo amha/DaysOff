@@ -27,13 +27,10 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.adapters.EventsRecyclerViewAdapter;
-import amhamogus.com.daysoff.model.DaysOffEvent;
 import amhamogus.com.daysoff.model.EventCollection;
 
 /**
@@ -45,7 +42,6 @@ import amhamogus.com.daysoff.model.EventCollection;
  * create an instance of this fragment.
  */
 public class EventDetailFragment extends Fragment {
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_ACCOUNT_NAME = "param1";
     private String accountName;
     private EventCollection events;
@@ -53,8 +49,6 @@ public class EventDetailFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     GoogleAccountCredential mCredential;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String ARG_CALENDAR_NAME = "calendarName";
     private static final String ARG_EVENT_LIST = "eventList";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
@@ -77,6 +71,7 @@ public class EventDetailFragment extends Fragment {
             args.putParcelable(ARG_EVENT_LIST, eventList);
             fragment.setArguments(args);
         } else {
+            //TODO
         }
         return fragment;
     }
@@ -94,7 +89,6 @@ public class EventDetailFragment extends Fragment {
                 getContext(), Arrays.asList(SCOPES))
                 .setSelectedAccountName(accountName)
                 .setBackOff(new ExponentialBackOff());
-
     }
 
     @Override
@@ -108,7 +102,6 @@ public class EventDetailFragment extends Fragment {
         RecyclerView view = (RecyclerView) rootView.findViewById(R.id.event_list);
 
         if (events.getEvents().size() > 0) {
-
             // Hide user call to action
             card.setVisibility(View.INVISIBLE);
 
@@ -125,7 +118,6 @@ public class EventDetailFragment extends Fragment {
         }
 
         //new getEventsTask(mCredential).execute();
-
         return rootView;
     }
 
@@ -169,10 +161,9 @@ public class EventDetailFragment extends Fragment {
     public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
         private final int[] ATTRS = new int[]{android.R.attr.listDivider};
-
         private Drawable divider;
 
-        public DividerItemDecoration(Context context) {
+        DividerItemDecoration(Context context) {
             final TypedArray styledAttributes = context.obtainStyledAttributes(ATTRS);
             divider = styledAttributes.getDrawable(0);
             styledAttributes.recycle();
@@ -187,7 +178,8 @@ public class EventDetailFragment extends Fragment {
             for (int i = 0; i < childCount; i++) {
                 View child = parent.getChildAt(i);
 
-                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+                RecyclerView.LayoutParams params =
+                        (RecyclerView.LayoutParams) child.getLayoutParams();
 
                 int top = child.getBottom() + params.bottomMargin;
                 int bottom = top + divider.getIntrinsicHeight();
@@ -218,6 +210,7 @@ public class EventDetailFragment extends Fragment {
             try {
                 getEvents();
             } catch (IOException io) {
+                //TODO
             }
             return "";
         }
@@ -226,15 +219,10 @@ public class EventDetailFragment extends Fragment {
         private String getEvents() throws IOException {
 
             DateTime date = new DateTime(System.currentTimeMillis());
-
             Events events = eventService.events()
                     .list("primary")
                     .setTimeMin(date)
                     .execute();
-
-//            for (Event event : events.getItems()) {
-//
-//            }
             return "";
         }
 

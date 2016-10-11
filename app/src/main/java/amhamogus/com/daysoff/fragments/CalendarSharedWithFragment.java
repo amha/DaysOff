@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +38,6 @@ import amhamogus.com.daysoff.R;
  */
 public class CalendarSharedWithFragment extends Fragment {
 
-    String TAG = "SHARED_WITH_FRAGMENT";
-
     GoogleAccountCredential mCredential;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     private static final String ARG_PARAM1 = "param1";
@@ -65,15 +62,13 @@ public class CalendarSharedWithFragment extends Fragment {
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
-            Log.d(TAG, "PARAM1 = " + mParam1);
         }
 
         mCredential = GoogleAccountCredential
-                .usingOAuth2(getActivity().getApplicationContext(), Arrays.asList(SCOPES))
+                .usingOAuth2(getActivity()
+                        .getApplicationContext(), Arrays.asList(SCOPES))
                 .setSelectedAccountName(mParam1)
                 .setBackOff(new ExponentialBackOff());
-
-
     }
 
     @Override
@@ -81,7 +76,7 @@ public class CalendarSharedWithFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_calendar_shared, container, false);
-        contactList = (ListView)rootView.findViewById(R.id.contact_list);
+        contactList = (ListView) rootView.findViewById(R.id.contact_list);
 
         new GetSharedContactsTask(mCredential).execute();
         return rootView;
@@ -128,7 +123,7 @@ public class CalendarSharedWithFragment extends Fragment {
 
         private com.google.api.services.calendar.Calendar mACLService = null;
 
-        public GetSharedContactsTask(GoogleAccountCredential credential) {
+        GetSharedContactsTask(GoogleAccountCredential credential) {
 
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -144,7 +139,7 @@ public class CalendarSharedWithFragment extends Fragment {
             try {
                 sharedWithDetails = getSharedWith();
             } catch (IOException io) {
-                Log.d(TAG, "error = " + io.toString());
+               //TODO
             }
             return sharedWithDetails;
         }
@@ -160,18 +155,12 @@ public class CalendarSharedWithFragment extends Fragment {
         }
 
         @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
         protected void onPostExecute(ArrayList<String> output) {
-            List<String> list = output;
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                     getActivity().getApplicationContext(),
                     android.R.layout.simple_list_item_1,
-                    list);
+                    output);
             contactList.setAdapter(arrayAdapter);
-
         }
     }
 }

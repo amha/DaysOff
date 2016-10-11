@@ -25,7 +25,8 @@ import amhamogus.com.daysoff.model.DaysOffEvent;
 import amhamogus.com.daysoff.model.EventCollection;
 
 public class CalendarActivity extends AppCompatActivity
-        implements CalendarSharedWithFragment.OnFragmentInteractionListener, CalendarFragment.OnCalendarSelectionListener {
+        implements CalendarSharedWithFragment.OnFragmentInteractionListener,
+        CalendarFragment.OnCalendarSelectionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -73,7 +74,6 @@ public class CalendarActivity extends AppCompatActivity
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
     }
 
     public void onCalendarSelected(Date date, EventCollection eventCollection) {
@@ -85,7 +85,7 @@ public class CalendarActivity extends AppCompatActivity
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date eventDate;
 
-        List<DaysOffEvent> eventsOnASelectedDate = new ArrayList<DaysOffEvent>();
+        List<DaysOffEvent> eventsOnASelectedDate = new ArrayList<>();
 
         // Find events from the events collection that
         // match to user selected calendar date
@@ -119,6 +119,7 @@ public class CalendarActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
+            //TODO
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -135,7 +136,7 @@ public class CalendarActivity extends AppCompatActivity
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

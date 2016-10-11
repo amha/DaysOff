@@ -4,7 +4,6 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -69,8 +67,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     }
 
     public static AddEventFragment newInstance() {
-        AddEventFragment fragment = new AddEventFragment();
-        return fragment;
+        return new AddEventFragment();
     }
 
     @Override
@@ -238,7 +235,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
         private com.google.api.services.calendar.Calendar mService = null;
 
-        public AddEventTask(GoogleAccountCredential credential) {
+        AddEventTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(

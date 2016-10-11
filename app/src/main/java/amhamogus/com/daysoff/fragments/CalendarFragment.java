@@ -1,9 +1,5 @@
 package amhamogus.com.daysoff.fragments;
 
-/**
- * Created by amhamogus on 10/1/16.
- */
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -133,6 +129,7 @@ public class CalendarFragment extends Fragment {
         new RequestEventsTask(mCredential).execute();
         return rootView;
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -146,9 +143,10 @@ public class CalendarFragment extends Fragment {
         }
     }
 
-    public void passDate(Date mDate, EventCollection eventCollection){
+    public void passDate(Date mDate, EventCollection eventCollection) {
         calendarSelection.onCalendarSelected(mDate, eventCollection);
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -162,7 +160,7 @@ public class CalendarFragment extends Fragment {
 
         private com.google.api.services.calendar.Calendar mService = null;
 
-        public RequestEventsTask(GoogleAccountCredential credential) {
+        RequestEventsTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(
@@ -186,9 +184,6 @@ public class CalendarFragment extends Fragment {
             Events events;
             List<Event> items;
             DateTime now = new DateTime(System.currentTimeMillis());
-            //      GregorianCalendar upperBound = new GregorianCalendar(2016, Calendar.SEPTEMBER, 13);
-
-            // Iterate over the events in the specified calendar
             do {
                 events = mService.events().list("primary")
                         .setPageToken(pageToken)
@@ -214,7 +209,7 @@ public class CalendarFragment extends Fragment {
                 // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
                 Toast.makeText(getActivity().getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
             } else {
-                Collection<Date> dates = new ArrayList<Date>();
+                Collection<Date> dates = new ArrayList<>();
 
                 for (int i = 0; i < output.size(); i++) {
                     Date date = new Date(output.get(i).getStart().getDateTime().getValue());
@@ -229,8 +224,8 @@ public class CalendarFragment extends Fragment {
                 List<DaysOffEvent> daysOffList = new ArrayList<>();
 
 
-                for (Event e: events) {
-                    daysOffList.add(new DaysOffEvent(e)) ;
+                for (Event e : events) {
+                    daysOffList.add(new DaysOffEvent(e));
                 }
 
                 eventsReturnedCollection.setEvents(daysOffList);

@@ -6,13 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.api.services.calendar.model.CalendarListEntry;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.fragments.MainListFragment.OnListFragmentInteractionListener;
 
 /**
- *  Add description.
+ * Add description.
  */
 public class CalendarItemRecyclerViewAdapter
         extends RecyclerView.Adapter<CalendarItemRecyclerViewAdapter.ViewHolder> {
@@ -22,17 +25,25 @@ public class CalendarItemRecyclerViewAdapter
      */
     private final ArrayList<String> mValues;
     private final ArrayList<String> calendarID;
+    private List<CalendarListEntry> calendarListEntries;
 
     /**
      * Callback that.....
      */
     private final OnListFragmentInteractionListener mListener;
 
-    public CalendarItemRecyclerViewAdapter(ArrayList<String> items, ArrayList<String> ids,
+    public CalendarItemRecyclerViewAdapter(List<CalendarListEntry> entryList,
                                            OnListFragmentInteractionListener listener) {
-        mValues = items;
+
+        mValues = new ArrayList<>(entryList.size());
+        calendarID = new ArrayList<>(entryList.size());
         mListener = listener;
-        calendarID = ids;
+        calendarListEntries = entryList;
+
+        for (int i = 0; i < entryList.size(); i++) {
+            mValues.add(entryList.get(i).getSummary());
+            calendarID.add(entryList.get(i).getId());
+        }
     }
 
     @Override
@@ -45,8 +56,10 @@ public class CalendarItemRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(position + "");
+        holder.mIdView.setText(Integer.toString(position));
         holder.mContentView.setText(mValues.get(position));
+//        holder.mContentView.setTextColor(Integer.valueOf(calendarListEntries.get(position).getBackgroundColor(), 16).intValue());
+//        Log.d("AMHA-COlor", "color:" + Integer.valueOf(calendarListEntries.get(position).getBackgroundColor().substring(1), 16).intValue());
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,12 +78,13 @@ public class CalendarItemRecyclerViewAdapter
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public String mItem;
+        final View mView;
+        final TextView mIdView;
+        final TextView mContentView;
+        String mItem;
+        public String color;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.id);

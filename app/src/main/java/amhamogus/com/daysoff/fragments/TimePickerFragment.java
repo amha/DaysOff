@@ -1,19 +1,15 @@
 package amhamogus.com.daysoff.fragments;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.TimePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.TimePicker;
 
 import java.util.Calendar;
 
 /**
- * Created by amhamogus on 10/2/16.
+ * Instance of {@link DialogFragment} that displays
+ * a Timepicker widget.
  */
 
 public class TimePickerFragment extends DialogFragment {

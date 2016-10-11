@@ -6,16 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.model.DaysOffEvent;
 
-/**
- * Created by amhamogus on 9/15/16.
- */
-public class EventsRecyclerViewAdapter extends RecyclerView.Adapter<EventsRecyclerViewAdapter.ViewHolder> {
+public class EventsRecyclerViewAdapter
+        extends RecyclerView.Adapter<EventsRecyclerViewAdapter.ViewHolder> {
 
     private List<DaysOffEvent> dataModel;
 
@@ -40,11 +37,11 @@ public class EventsRecyclerViewAdapter extends RecyclerView.Adapter<EventsRecycl
         return dataModel.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
-        public final TextView mTextView;
+        final TextView mTextView;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mTextView = (TextView) view.findViewById(R.id.event_title);
         }
