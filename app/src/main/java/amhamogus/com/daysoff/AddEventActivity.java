@@ -6,11 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
+import java.util.Date;
+
 import amhamogus.com.daysoff.fragments.AddEventFragment;
 
 public class AddEventActivity extends AppCompatActivity {
 
     AddEventFragment addEventFragment;
+    private static final String ARG_CURRENT_DATE = "currentDate";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,12 +21,16 @@ public class AddEventActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_event);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Bloop");
+
+        Date cDate = new Date();
+        cDate.setTime(getIntent().getExtras().getLong(ARG_CURRENT_DATE));
+        toolbar.setTitle(cDate.toString().substring(0,10));
+
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(
                 getResources().getDrawable(R.drawable.ic_close_white_24dp, null));
 
-        addEventFragment = AddEventFragment.newInstance();
+        addEventFragment = AddEventFragment.newInstance(cDate);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.add_event_form, addEventFragment).commit();
     }

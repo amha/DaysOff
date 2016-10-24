@@ -15,8 +15,10 @@ public class EventsActivity extends AppCompatActivity
         implements EventDetailFragment.OnFragmentInteractionListener {
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String PREF_FILE = "calendarSessionData";
     private static final String ARG_EVENT_LIST = "eventList";
+    private static final String ARG_CURRENT_DATE = "currentDate";
+
+    long selectedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,20 +31,19 @@ public class EventsActivity extends AppCompatActivity
 
         Intent intent = getIntent();
         String accountName = intent.getExtras().getString(PREF_ACCOUNT_NAME);
+        EventCollection eventCollection = intent.getExtras().getParcelable(ARG_EVENT_LIST);
 
-        EventCollection eventCollection =
-                intent.getExtras().getParcelable(ARG_EVENT_LIST);
+        selectedDate = intent.getExtras().getLong(ARG_CURRENT_DATE);
         EventDetailFragment fragment = EventDetailFragment
-                .newInstance(accountName, eventCollection);
+                .newInstance(accountName, eventCollection, selectedDate);
 
-        FragmentTransaction transaction =
-                getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.event_frame, fragment).commit();
     }
 
     public void addEvent(View v) {
-        Intent intent = new Intent(getApplicationContext(),
-                AddEventActivity.class);
+        Intent intent = new Intent(getApplicationContext(),AddEventActivity.class);
+        intent.putExtra(ARG_CURRENT_DATE, selectedDate);
         startActivity(intent);
     }
 

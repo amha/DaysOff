@@ -11,6 +11,14 @@
         android:layout_marginLeft="32dp"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/add_event_date"
+            android:padding="20dp"
+            android:background="#999"
+            />
+
         <EditText
             android:id="@+id/add_event_summary"
             android:layout_width="match_parent"

@@ -222,8 +222,6 @@ public class CalendarFragment extends Fragment {
                 events = output;
 
                 List<DaysOffEvent> daysOffList = new ArrayList<>();
-
-
                 for (Event e : events) {
                     daysOffList.add(new DaysOffEvent(e));
                 }

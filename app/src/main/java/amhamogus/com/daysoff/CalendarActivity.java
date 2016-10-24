@@ -43,6 +43,7 @@ public class CalendarActivity extends AppCompatActivity
      */
     private ViewPager mViewPager;
 
+    private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String ARG_CALENDAR_ID = "id";
     private static final String ARG_ACCOUNT_NAME = "accountName";
     private static final String ARG_CALENDAR_NAME = "calendarName";
@@ -78,17 +79,15 @@ public class CalendarActivity extends AppCompatActivity
 
     public void onCalendarSelected(Date date, EventCollection eventCollection) {
 
-        Intent intent = new Intent(getApplicationContext(), EventsActivity.class);
         Bundle bundle = new Bundle();
 
-        String input = eventCollection.getEvents().get(0).getStartTime();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date eventDate;
+        SimpleDateFormat format =   new SimpleDateFormat("yyyy-MM-dd");
 
+       // String input = eventCollection.getEvents().get(0).getStartTime();
         List<DaysOffEvent> eventsOnASelectedDate = new ArrayList<>();
 
-        // Find events from the events collection that
-        // match to user selected calendar date
+        // Get events for the user selected day
         for (int i = 0; i < eventCollection.getEvents().size(); i++) {
             try {
                 eventDate = format.parse(eventCollection.getEvents().get(i).getStartTime());
@@ -99,10 +98,12 @@ public class CalendarActivity extends AppCompatActivity
                 Log.d("AMHA", "Error parsing date: " + e);
             }
         }
-
         EventCollection collectionOnASingleDay = new EventCollection(eventsOnASelectedDate);
+
+        Intent intent = new Intent(getApplicationContext(), EventsActivity.class);
         bundle.putString(PREF_ACCOUNT_NAME, currentAccountName);
         bundle.putParcelable(ARG_EVENT_LIST, collectionOnASingleDay);
+        bundle.putLong(ARG_CURRENT_DATE, date.getTime());
         intent.putExtras(bundle);
         startActivity(intent);
     }

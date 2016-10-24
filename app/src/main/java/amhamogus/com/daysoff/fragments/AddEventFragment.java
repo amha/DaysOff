@@ -35,8 +35,10 @@ import com.google.api.services.calendar.model.EventDateTime;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 
 import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.utils.DateFormater;
 
 
 public class AddEventFragment extends Fragment implements View.OnClickListener,
@@ -53,6 +55,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
     String[] checkedActivities;
 
+    private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_FILE = "calendarSessionData";
     private static final String ARG_LOCAL_OR_REMOTE = "remote";
@@ -63,15 +66,29 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
     private final String REQUEST_TIME = "requestTime";
 
+    Date currentDate;
+
     public AddEventFragment() {
     }
 
-    public static AddEventFragment newInstance() {
-        return new AddEventFragment();
+    public static AddEventFragment newInstance(Date date) {
+
+        AddEventFragment fragment = new AddEventFragment();
+        Bundle args = new Bundle();
+        args.putLong(ARG_CURRENT_DATE, date.getTime());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        if (getArguments() != null) {
+
+            currentDate = new Date();
+            currentDate.setTime(getArguments().getLong(ARG_CURRENT_DATE));
+        }
+
         super.onCreate(savedInstanceState);
         checkedActivities = new String[3];
         setHasOptionsMenu(true);
@@ -135,12 +152,12 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             if (validate()) {
 
                 // Convert time into RFC3339 format
-                DateTime start = new DateTime("2016-10-11T01:00:11");
+                DateTime start = DateFormater.getDateTime(currentDate, 0);
                 EventDateTime startDateTime = new EventDateTime()
                         .setDateTime(start)
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
 
-                DateTime end = new DateTime("2016-10-11T01:30:55");
+                DateTime end = DateFormater.getDateTime(currentDate, 1);
                 EventDateTime endDateTime = new EventDateTime()
                         .setDateTime(end)
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
@@ -148,6 +165,19 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 // Populate event object with user input
                 mEvent.setSummary(summary.getText().toString());
                 mEvent.setStart(startDateTime).setEnd(endDateTime);
+
+                String decription = "";
+
+                if(movie.isChecked()){
+                    decription = movie.getText().toString();
+                }
+                if (food.isChecked()){
+                    decription = decription + food.getText().toString();
+                }
+                if(outdoors.isChecked()){
+                    decription = decription + outdoors.getText().toString();
+                }
+                mEvent.setDescription(decription);
 
                 new AddEventTask(mCredential).execute(mEvent);
 
@@ -250,6 +280,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 insertEventData(events[0]);
             } catch (Exception e) {
                 cancel(true);
+                Log.d("AMHA", "Error adding: " + e.toString());
             }
             return null;
         }
@@ -258,21 +289,13 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             // Send insert command
             Event responseEvent = mService.events().insert("primary", event).execute();
             if (responseEvent != null) {
-                Toast.makeText(
-                        getActivity().getApplicationContext(),
-                        "Successfully added new event",
-                        Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(
-                        getActivity().getApplicationContext(),
-                        "Error adding event. =(",
-                        Toast.LENGTH_SHORT).show();
             }
         }
 
         @Override
         protected void onPostExecute(String output) {
-
+            Toast.makeText(getContext(),"Added Event!", Toast.LENGTH_SHORT).show();
         }
     }
 }

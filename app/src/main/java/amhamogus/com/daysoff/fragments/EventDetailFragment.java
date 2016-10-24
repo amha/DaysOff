@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.adapters.EventsRecyclerViewAdapter;
@@ -42,14 +44,18 @@ import amhamogus.com.daysoff.model.EventCollection;
  * create an instance of this fragment.
  */
 public class EventDetailFragment extends Fragment {
+
+    private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String ARG_ACCOUNT_NAME = "param1";
+    private static final String ARG_EVENT_LIST = "eventList";
+
+
+    private Date currentDate;
     private String accountName;
     private EventCollection events;
 
     private OnFragmentInteractionListener mListener;
-
     GoogleAccountCredential mCredential;
-    private static final String ARG_EVENT_LIST = "eventList";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public EventDetailFragment() {
@@ -62,13 +68,15 @@ public class EventDetailFragment extends Fragment {
      * @param name Parameter 1.
      * @return A new instance of fragment EventDetailFragment.
      */
-    public static EventDetailFragment newInstance(String name, EventCollection eventList) {
+    public static EventDetailFragment newInstance(String name, EventCollection eventList, long
+                                                  selectedDate) {
         EventDetailFragment fragment = new EventDetailFragment();
 
         if (name != null) {
             Bundle args = new Bundle();
             args.putString(ARG_ACCOUNT_NAME, name);
             args.putParcelable(ARG_EVENT_LIST, eventList);
+            args.putLong(ARG_CURRENT_DATE, selectedDate);
             fragment.setArguments(args);
         } else {
             //TODO
@@ -83,6 +91,8 @@ public class EventDetailFragment extends Fragment {
 
             accountName = getArguments().getString(ARG_ACCOUNT_NAME);
             events = getArguments().getParcelable(ARG_EVENT_LIST);
+            currentDate = new Date(getArguments().getLong(ARG_CURRENT_DATE));
+            Log.d("AMHA", "\n\nCurrent Event Date: " + currentDate.toString());
         }
 
         mCredential = GoogleAccountCredential.usingOAuth2(
