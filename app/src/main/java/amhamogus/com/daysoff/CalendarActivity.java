@@ -1,6 +1,8 @@
 package amhamogus.com.daysoff;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -10,18 +12,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import amhamogus.com.daysoff.fragments.CalendarFragment;
 import amhamogus.com.daysoff.fragments.CalendarSharedWithFragment;
-import amhamogus.com.daysoff.model.DaysOffEvent;
 import amhamogus.com.daysoff.model.EventCollection;
 
 public class CalendarActivity extends AppCompatActivity
@@ -43,27 +39,31 @@ public class CalendarActivity extends AppCompatActivity
      */
     private ViewPager mViewPager;
 
-    private static final String ARG_CURRENT_DATE = "currentDate";
-    private static final String ARG_CALENDAR_ID = "id";
-    private static final String ARG_ACCOUNT_NAME = "accountName";
-    private static final String ARG_CALENDAR_NAME = "calendarName";
     private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_CALENDAR_NAME = "calendarName";
+    private static final String PREF_CALENDAR_ID = "calendarId";
+
+    private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String ARG_EVENT_LIST = "eventList";
 
-    private static String currentAccountName;
-    private static String calendarId;
-    private static String calendarName;
+    String currentAccountName;
+    String calendarName;
+    String calendarId;
 
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        Bundle extras = getIntent().getExtras();
-        currentAccountName = extras.getString(ARG_ACCOUNT_NAME);
-        calendarId = extras.getString(ARG_CALENDAR_ID);
-        calendarName = extras.getString(ARG_CALENDAR_NAME);
+        settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+
+        currentAccountName = settings.getString(PREF_ACCOUNT_NAME, null);
+        calendarName = settings.getString(PREF_CALENDAR_NAME, null);
+        calendarId = settings.getString(PREF_CALENDAR_ID, null);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(calendarName);
@@ -80,30 +80,9 @@ public class CalendarActivity extends AppCompatActivity
     public void onCalendarSelected(Date date, EventCollection eventCollection) {
 
         Bundle bundle = new Bundle();
-
-        Date eventDate;
-        SimpleDateFormat format =   new SimpleDateFormat("yyyy-MM-dd");
-
-       // String input = eventCollection.getEvents().get(0).getStartTime();
-        List<DaysOffEvent> eventsOnASelectedDate = new ArrayList<>();
-
-        // Get events for the user selected day
-        for (int i = 0; i < eventCollection.getEvents().size(); i++) {
-            try {
-                eventDate = format.parse(eventCollection.getEvents().get(i).getStartTime());
-                if (date.compareTo(eventDate) == 0) {
-                    eventsOnASelectedDate.add(eventCollection.getEvents().get(i));
-                }
-            } catch (java.text.ParseException e) {
-                Log.d("AMHA", "Error parsing date: " + e);
-            }
-        }
-        EventCollection collectionOnASingleDay = new EventCollection(eventsOnASelectedDate);
+        bundle.putLong(ARG_CURRENT_DATE, date.getTime());
 
         Intent intent = new Intent(getApplicationContext(), EventsActivity.class);
-        bundle.putString(PREF_ACCOUNT_NAME, currentAccountName);
-        bundle.putParcelable(ARG_EVENT_LIST, collectionOnASingleDay);
-        bundle.putLong(ARG_CURRENT_DATE, date.getTime());
         intent.putExtras(bundle);
         startActivity(intent);
     }
@@ -115,16 +94,6 @@ public class CalendarActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            //TODO
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onContactSelected(Uri uri) {

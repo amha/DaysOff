@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -33,33 +32,39 @@ import java.util.Date;
 import java.util.List;
 
 import amhamogus.com.daysoff.R;
-import amhamogus.com.daysoff.model.DaysOffEvent;
 import amhamogus.com.daysoff.model.EventCollection;
+import amhamogus.com.daysoff.utils.CollectionHelper;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class CalendarFragment extends Fragment {
 
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String PREF_FILE = "calendarSessionData";
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
-
-    private ProgressBar mProgress;
-    static CalendarPickerView calendar;
-
-    private static String currentAccountName;
-    private EventCollection eventsReturnedCollection;
-    private static List<Event> events;
-
-    private OnCalendarSelectionListener calendarSelection;
 
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
+
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_CALENDAR_NAME = "calendarName";
+    private static final String PREF_CALENDAR_ID = "calendarId";
+
+    String currentAccountName;
+    String calendarName;
+    String calendarId;
+
+    private CalendarPickerView calendar;
+    private ProgressBar mProgress;
+    private EventCollection eventsReturnedCollection;
+    private List<Event> events;
+    private OnCalendarSelectionListener calendarSelection;
+
+
+    GoogleAccountCredential mCredential;
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public CalendarFragment() {
     }
@@ -78,13 +83,14 @@ public class CalendarFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         eventsReturnedCollection = new EventCollection();
 
         SharedPreferences preferences = getActivity()
                 .getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         currentAccountName = preferences.getString(PREF_ACCOUNT_NAME, null);
+        calendarName = preferences.getString(PREF_CALENDAR_NAME, "primary");
+        calendarId = preferences.getString(PREF_CALENDAR_ID, "primary");
 
         mCredential = GoogleAccountCredential
                 .usingOAuth2(getActivity().getApplicationContext(), Arrays.asList(SCOPES))
@@ -185,7 +191,7 @@ public class CalendarFragment extends Fragment {
             List<Event> items;
             DateTime now = new DateTime(System.currentTimeMillis());
             do {
-                events = mService.events().list("primary")
+                events = mService.events().list(calendarId)
                         .setPageToken(pageToken)
                         .setTimeMin(now)
                         .setMaxResults(20)
@@ -205,35 +211,29 @@ public class CalendarFragment extends Fragment {
         protected void onPostExecute(List<Event> output) {
 
             if (output == null || output.size() == 0) {
-                // Show toast when the server doesn't return anything
-                // mOutputText.makeText(getApplicationContext(), "No results returned.", Toast.LENGTH_SHORT).show();
-                Toast.makeText(getActivity().getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
+                // TODO: display empty list view and ask user to
+                // select a different calendar
             } else {
                 Collection<Date> dates = new ArrayList<>();
 
                 for (int i = 0; i < output.size(); i++) {
-                    Date date = new Date(output.get(i).getStart().getDateTime().getValue());
-                    dates.add(date);
+                    if (CollectionHelper.validDateFormat(output.get(i))) {
+                        Date date = new Date(output.get(i).getStart().getDateTime().getValue());
+                        dates.add(date);
+                    }
                 }
                 calendar.highlightDates(dates);
+                eventsReturnedCollection.setEvents(CollectionHelper.convertListToCollection(output));
+
                 mProgress.setVisibility(View.INVISIBLE);
                 calendar.setVisibility(View.VISIBLE);
-
-                events = output;
-
-                List<DaysOffEvent> daysOffList = new ArrayList<>();
-                for (Event e : events) {
-                    daysOffList.add(new DaysOffEvent(e));
-                }
-
-                eventsReturnedCollection.setEvents(daysOffList);
             }
         }
-
     }
 
     public interface OnCalendarSelectionListener {
         void onCalendarSelected(Date date, EventCollection events);
 
     }
+
 }

@@ -36,10 +36,11 @@ public class MainActivity extends AppCompatActivity
     /**
      * The key for the list parameter.
      */
-    private static final String ARG_CALENDAR_ID = "id";
     private static final String ARG_CALENDAR_NAME = "calendarName";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_CALENDAR_NAME = "calendarName";
+    private static final String PREF_CALENDAR_ID = "calendarId";
 
     GoogleAccountCredential mCredential;
     static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity
      */
     private MainListFragment mList;
 
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +68,9 @@ public class MainActivity extends AppCompatActivity
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-        SharedPreferences settings =
-                getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        editor = settings.edit();
+        editor.commit();
 
         if (!settings.contains(PREF_ACCOUNT_NAME)) {
             getCalendarList();
@@ -91,12 +96,13 @@ public class MainActivity extends AppCompatActivity
     public void onCalendarSelectedInteraction(String calendarID, String calendarName) {
 
         if (calendarID != null & calendarName != null) {
-            SharedPreferences pref =
-                    getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
-            String name = pref.getString(PREF_ACCOUNT_NAME, null);
+            String name = settings.getString(PREF_ACCOUNT_NAME, null);
+
+            editor.putString(PREF_CALENDAR_NAME, calendarName);
+            editor.putString(PREF_CALENDAR_ID, calendarID);
+            editor.commit();
 
             Intent intent = new Intent(getApplicationContext(), CalendarActivity.class);
-            intent.putExtra(ARG_CALENDAR_ID, calendarID);
             intent.putExtra(ARG_CALENDAR_NAME, calendarName);
             intent.putExtra(PREF_ACCOUNT_NAME, name);
 
@@ -267,7 +273,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
@@ -292,7 +300,7 @@ public class MainActivity extends AppCompatActivity
 
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.commit();
+                        editor.apply();
 
                         mCredential.setSelectedAccountName(accountName);
                         getCalendarList();

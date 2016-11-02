@@ -4,6 +4,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import amhamogus.com.daysoff.EventsActivity;
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.utils.DateFormater;
 
@@ -52,20 +54,19 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     CheckBox movie;
     CheckBox outdoors;
     Event mEvent;
-
     String[] checkedActivities;
+
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_CALENDAR_ID = "calendarId";
 
     private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String PREF_FILE = "calendarSessionData";
-    private static final String ARG_LOCAL_OR_REMOTE = "remote";
+
     GoogleAccountCredential mCredential;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
-    private static String currentAccountName;
-
-    private final String REQUEST_TIME = "requestTime";
-
+    String currentAccountName;
+    String calendarId;
     Date currentDate;
 
     public AddEventFragment() {
@@ -97,6 +98,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         SharedPreferences preferences = getActivity()
                 .getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         currentAccountName = preferences.getString(PREF_ACCOUNT_NAME, null);
+        calendarId = preferences.getString(PREF_CALENDAR_ID, null);
 
         mCredential = GoogleAccountCredential
                 .usingOAuth2(getActivity().getApplicationContext(), Arrays.asList(SCOPES))
@@ -168,13 +170,13 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
                 String decription = "";
 
-                if(movie.isChecked()){
+                if (movie.isChecked()) {
                     decription = movie.getText().toString();
                 }
-                if (food.isChecked()){
+                if (food.isChecked()) {
                     decription = decription + food.getText().toString();
                 }
-                if(outdoors.isChecked()){
+                if (outdoors.isChecked()) {
                     decription = decription + outdoors.getText().toString();
                 }
                 mEvent.setDescription(decription);
@@ -280,22 +282,21 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 insertEventData(events[0]);
             } catch (Exception e) {
                 cancel(true);
-                Log.d("AMHA", "Error adding: " + e.toString());
             }
             return null;
         }
 
         private void insertEventData(Event event) throws IOException {
-            // Send insert command
-            Event responseEvent = mService.events().insert("primary", event).execute();
-            if (responseEvent != null) {
-            } else {
-            }
+            // Send insert command to backend
+            Event responseEvent = mService.events().insert(calendarId, event).execute();
         }
 
         @Override
         protected void onPostExecute(String output) {
-            Toast.makeText(getContext(),"Added Event!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity().getApplicationContext(), EventsActivity.class);
+            intent.putExtra(ARG_CURRENT_DATE, currentDate.getTime());
+            startActivity(intent);
+            Toast.makeText(getContext(), "Added Event!", Toast.LENGTH_SHORT).show();
         }
     }
 }
