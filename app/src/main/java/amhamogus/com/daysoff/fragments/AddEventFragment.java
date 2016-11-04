@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,6 +45,8 @@ import amhamogus.com.daysoff.utils.DateFormater;
 
 public class AddEventFragment extends Fragment implements View.OnClickListener,
         TimePickerDialog.OnTimeSetListener {
+
+    final String TAG = "ADD_FRAGMENT_LOG";
 
     EditText summary;
     TextView timeLabel;
@@ -141,18 +144,17 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             minute = 30;
             futureMinute = 00;
 
-            if (hour == 12) {
-                hour = 1;
+            if (hour >= 12) {
+                hour = hour - 12;
                 futureHour = hour;
             } else {
-
                 futureHour = 1 + hour;
             }
         } else {
             minute = 00;
             futureMinute = 30;
 
-            if (hour == 12) {
+            if (hour >= 12) {
                 hour = 1;
                 futureHour = hour;
             } else {
@@ -187,7 +189,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
 
         // When user hits save in the toolbar validate input, and
@@ -196,15 +198,23 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             if (validate()) {
 
                 // Convert time into RFC3339 format
-                DateTime start = DateFormater.getDateTime(currentDate, 0);
+                DateTime start = DateFormater.getDateTime(startTimeLabel.getText().toString(),currentDate);
                 EventDateTime startDateTime = new EventDateTime()
                         .setDateTime(start)
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
 
-                DateTime end = DateFormater.getDateTime(currentDate, 1);
+
+                DateTime end = DateFormater.getDateTime(endTimeLabel.getText().toString(), currentDate);
                 EventDateTime endDateTime = new EventDateTime()
                         .setDateTime(end)
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
+
+                try {
+                    Log.d(TAG, "Start:" + startDateTime.toPrettyString());
+                    Log.d(TAG, "End:" + endDateTime.toPrettyString());
+                } catch (IOException e){
+                    Log.d(TAG, "Error: " +e.getMessage());
+                }
 
                 // Populate event object with user input
                 mEvent.setSummary(summary.getText().toString());
@@ -295,6 +305,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         //String amOrPm = ((Button)timePickerGroup.getChildAt(2)).getText().toString();
 
         Calendar calendar = Calendar.getInstance();
+        timePicker.setIs24HourView(false);
 
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.HOUR, hour);
@@ -304,6 +315,9 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
         if (hour == 0) {
             displayHour = "12";
+        } else if (hour > 12) {
+                hour = hour - 12;
+            displayHour = hour + "";
         } else {
             displayHour = hour + "";
         }
@@ -344,13 +358,14 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 insertEventData(events[0]);
             } catch (Exception e) {
                 cancel(true);
+                Log.d(TAG, "error" + e.toString());
             }
             return null;
         }
 
         private void insertEventData(Event event) throws IOException {
             // Send insert command to backend
-            Event responseEvent = mService.events().insert(calendarId, event).execute();
+            mService.events().insert(calendarId, event).execute();
         }
 
         @Override
