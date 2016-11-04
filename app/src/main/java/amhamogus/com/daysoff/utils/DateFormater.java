@@ -37,4 +37,10 @@ public class DateFormater {
 
         return afterAddingMins;
     }
+
+//    public Date roundTo30Minutes(Date date) throws ParseException{
+//        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+//
+//
+//    }
 }

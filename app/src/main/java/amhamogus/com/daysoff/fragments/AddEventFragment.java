@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,6 +54,12 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     CheckBox outdoors;
     Event mEvent;
     String[] checkedActivities;
+    int hour;
+    int minute;
+    int amOrPm;
+
+    int futureHour;
+    int futureMinute;
 
     private static final String PREF_FILE = "calendarSessionData";
     private static final String PREF_CALENDAR_ID = "calendarId";
@@ -115,16 +120,53 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         summary = (EditText) rootView.findViewById(R.id.add_event_summary);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
+        // Get current time
         final Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
+        hour = c.get(Calendar.HOUR);
+        minute = c.get(Calendar.MINUTE);
+        amOrPm = c.get(Calendar.AM_PM);
+
+        // Default Noon or Night
+        String noonOrNight;
+        if (amOrPm == 0) {
+            noonOrNight = "AM";
+        } else {
+            noonOrNight = "PM";
+        }
 
         startTimeLabel = (TextView) rootView.findViewById(R.id.start_time_btn);
-        startTimeLabel.setText("" + hour + ":" + minute);
-        startTimeLabel.setOnClickListener(this);
-
         endTimeLabel = (TextView) rootView.findViewById(R.id.end_time_btn);
-        endTimeLabel.setText("" + hour + ":" + minute);
+
+        if (minute < 29) {
+            minute = 30;
+            futureMinute = 00;
+
+            if (hour == 12) {
+                hour = 1;
+                futureHour = hour;
+            } else {
+
+                futureHour = 1 + hour;
+            }
+        } else {
+            minute = 00;
+            futureMinute = 30;
+
+            if (hour == 12) {
+                hour = 1;
+                futureHour = hour;
+            } else {
+                hour = hour + 1;
+                futureHour = hour;
+            }
+        }
+
+        startTimeLabel.setText("" + hour + ":"
+                + String.format("%02d", minute) + " " + noonOrNight);
+        endTimeLabel.setText("" + futureHour + ":"
+                + String.format("%02d", futureMinute) + " " + noonOrNight);
+
+        startTimeLabel.setOnClickListener(this);
         endTimeLabel.setOnClickListener(this);
 
         food = (CheckBox) rootView.findViewById(R.id.event_checkbox_food);
@@ -191,6 +233,10 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onClick(View view) {
+
+        Bundle args;
+        DialogFragment timePicker;
+
         switch (view.getId()) {
             case R.id.event_checkbox_food:
                 if (((CheckBox) view).isChecked()) {
@@ -214,31 +260,47 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 }
                 break;
             case R.id.start_time_btn:
-            case R.id.end_time_btn:
-                DialogFragment newFragment = new TimePickerFragment();
-                newFragment.setTargetFragment(this, 0);
+                args = new Bundle();
+                args.putInt("HOUR", hour);
+                args.putInt("MINUTE", minute);
+
                 timeLabel = (TextView) view;
-                newFragment.show(getFragmentManager(), "timePicker");
+                timePicker = new TimePickerFragment();
+                timePicker.setArguments(args);
+                timePicker.setTargetFragment(this, 0);
+                timePicker.show(getFragmentManager(), "timePicker");
+                break;
+            case R.id.end_time_btn:
+                args = new Bundle();
+                args.putInt("HOUR", futureHour);
+                args.putInt("MINUTE", futureMinute);
+
+                timeLabel = (TextView) view;
+                timePicker = new TimePickerFragment();
+
+                timePicker.setArguments(args);
+                timePicker.setTargetFragment(this, 0);
+                timePicker.show(getFragmentManager(), "timePicker");
                 break;
         }
-        Log.d("AMHA", "output: "
-                + checkedActivities[0] + " : "
-                + checkedActivities[1] + ": "
-                + checkedActivities[2] + " : "
-                + startTimeLabel.getText().toString() + " : "
-                + endTimeLabel.getText().toString());
     }
 
     @Override
-    public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+    public void onTimeSet(TimePicker timePicker, int pickerHour, int pickerMinute) {
 
         String displayHour;
         String displayMinute;
-        String amOrPm;
+
+        ViewGroup timePickerGroup = (ViewGroup) timePicker.getChildAt(0);
+        //String amOrPm = ((Button)timePickerGroup.getChildAt(2)).getText().toString();
 
         Calendar calendar = Calendar.getInstance();
+
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.HOUR, hour);
+
+        hour = pickerHour;
+        minute = pickerMinute;
 
         if (hour == 0) {
             displayHour = "12";
@@ -251,7 +313,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             displayMinute = minute + "";
         }
 
-        amOrPm = ((calendar.get(Calendar.AM_PM)) == Calendar.AM) ? "am" : "pm";
+        String amOrPm = ((calendar.get(Calendar.AM_PM)) == Calendar.AM) ? "am" : "pm";
         timeLabel.setText(displayHour + ":" + displayMinute + " " + amOrPm);
     }
 
