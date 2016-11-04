@@ -61,6 +61,8 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     int minute;
     int amOrPm;
 
+    String noonOrNight;
+
     int futureHour;
     int futureMinute;
 
@@ -129,8 +131,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         minute = c.get(Calendar.MINUTE);
         amOrPm = c.get(Calendar.AM_PM);
 
-        // Default Noon or Night
-        String noonOrNight;
         if (amOrPm == 0) {
             noonOrNight = "AM";
         } else {
@@ -140,28 +140,43 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         startTimeLabel = (TextView) rootView.findViewById(R.id.start_time_btn);
         endTimeLabel = (TextView) rootView.findViewById(R.id.end_time_btn);
 
-        if (minute < 29) {
+        if (minute <= 29) {
+            // round to half past
             minute = 30;
             futureMinute = 00;
 
-            if (hour >= 12) {
+            // set future hour to the next hour
+            if (hour > 12) {
+                // error case
                 hour = hour - 12;
                 futureHour = hour;
+            } else if (hour == 0) {
+                // noon or midnight is set to '0' which is not
+                // helpful for users, thus we change 0 to 12
+                hour = 12;
+                futureHour = 1;
             } else {
-                futureHour = 1 + hour;
+                // non-special case where we increment hour by 1
+                futureHour = hour + 1;
             }
         } else {
+            // round to the nearest hour
             minute = 00;
             futureMinute = 30;
 
-            if (hour >= 12) {
-                hour = 1;
+            if (hour > 12) {
+                // error case
+                hour = hour - 12;
                 futureHour = hour;
-            } else {
+            } else if(hour == 0){
+                hour = 1;
+                futureHour = 1;
+            }else {
                 hour = hour + 1;
                 futureHour = hour;
             }
         }
+
 
         startTimeLabel.setText("" + hour + ":"
                 + String.format("%02d", minute) + " " + noonOrNight);
@@ -189,7 +204,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         // When user hits save in the toolbar validate input, and
@@ -198,23 +213,24 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             if (validate()) {
 
                 // Convert time into RFC3339 format
-                DateTime start = DateFormater.getDateTime(startTimeLabel.getText().toString(),currentDate);
+                DateTime start = DateFormater.getDateTime(
+                        startTimeLabel.getText().toString(),
+                        currentDate,
+                        noonOrNight);
+
                 EventDateTime startDateTime = new EventDateTime()
                         .setDateTime(start)
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
 
 
-                DateTime end = DateFormater.getDateTime(endTimeLabel.getText().toString(), currentDate);
+                DateTime end = DateFormater.getDateTime(
+                        endTimeLabel.getText().toString(),
+                        currentDate,
+                        noonOrNight);
+
                 EventDateTime endDateTime = new EventDateTime()
                         .setDateTime(end)
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
-
-                try {
-                    Log.d(TAG, "Start:" + startDateTime.toPrettyString());
-                    Log.d(TAG, "End:" + endDateTime.toPrettyString());
-                } catch (IOException e){
-                    Log.d(TAG, "Error: " +e.getMessage());
-                }
 
                 // Populate event object with user input
                 mEvent.setSummary(summary.getText().toString());
@@ -316,7 +332,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         if (hour == 0) {
             displayHour = "12";
         } else if (hour > 12) {
-                hour = hour - 12;
+            hour = hour - 12;
             displayHour = hour + "";
         } else {
             displayHour = hour + "";

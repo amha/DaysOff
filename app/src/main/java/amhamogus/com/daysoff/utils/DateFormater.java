@@ -27,13 +27,19 @@ public class DateFormater {
      * @param date Current date
      * @return RFC3339 formatted objected that represents the start or end of an event
      */
-    public static DateTime getDateTime(String selectedDateTime, Date date) {
+    public static DateTime getDateTime(String selectedDateTime, Date date, String amOrPm) {
 
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         Calendar timeCalendar = Calendar.getInstance();
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
+        if(amOrPm == "AM") {
+            calendar.set(Calendar.AM_PM, Calendar.AM);
+        }
+        else {
+            calendar.set(Calendar.AM_PM, Calendar.PM);
+        }
 
         try {
             timeCalendar.setTime(timeFormat.parse(selectedDateTime));
