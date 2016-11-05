@@ -17,42 +17,48 @@ import java.util.TimeZone;
 
 public class DateFormater {
 
-    public static final String TAG = "DATE_FORMATTER_LOG";
+    private static final String TAG = "DATE_FORMATTER_LOG";
 
     /**
      * Helper method that adds a user selected event time
      * to a {@link DateTime} object.
      *
      * @param selectedDateTime Time value returned from time picker
-     * @param date Current date
+     * @param date             Current date
      * @return RFC3339 formatted objected that represents the start or end of an event
      */
     public static DateTime getDateTime(String selectedDateTime, Date date, String amOrPm) {
 
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        // object we're going to pass to the server
         Calendar timeCalendar = Calendar.getInstance();
+        timeCalendar.setTime(date);
 
+        // formatting for the string selectedDateTime
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+
+        // get user selected date
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        if(amOrPm == "AM") {
-            calendar.set(Calendar.AM_PM, Calendar.AM);
-        }
-        else {
-            calendar.set(Calendar.AM_PM, Calendar.PM);
-        }
 
         try {
+            Date temp = timeFormat.parse(selectedDateTime);
             timeCalendar.setTime(timeFormat.parse(selectedDateTime));
+
+            calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+            calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+
         } catch (ParseException e) {
             Log.d(TAG, "Parse: " + e.getMessage());
         }
 
-        calendar.set(Calendar.HOUR, timeCalendar.get(Calendar.HOUR));
-        calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+        if (amOrPm == "AM") {
+            calendar.set(Calendar.AM_PM, Calendar.AM);
+        } else {
+            calendar.set(Calendar.AM_PM, Calendar.PM);
+        }
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         return new DateTime(format.format(calendar.getTime()));
     }
 }

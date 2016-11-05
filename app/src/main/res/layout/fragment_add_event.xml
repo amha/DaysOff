@@ -5,19 +5,25 @@
     tools:context="amhamogus.com.daysoff.fragments.AddEventFragment">
 
 
+    <TextView
+        android:id="@+id/add_event_date"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="0dp"
+        android:gravity="center_vertical|end"
+        android:paddingLeft="20dp"
+        android:paddingStart="20dp"
+        android:paddingRight="20dp"
+        android:paddingEnd="20dp"
+        android:background="@color/addEventHeader" />
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="55dp"
         android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/add_event_date"
-            android:padding="20dp"
-            android:background="#999"
-            />
 
         <EditText
             android:id="@+id/add_event_summary"
@@ -28,7 +34,7 @@
             android:hint="@string/event_title"
             android:imeOptions="actionDone"
             android:inputType="text"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <View
             android:layout_width="match_parent"
@@ -52,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:text="@string/event_form_time"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
 
 
         </LinearLayout>

@@ -52,6 +52,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     TextView timeLabel;
     TextView endTimeLabel;
     TextView startTimeLabel;
+    TextView addEventHeader;
     CheckBox food;
     CheckBox movie;
     CheckBox outdoors;
@@ -125,13 +126,16 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         summary = (EditText) rootView.findViewById(R.id.add_event_summary);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
+        addEventHeader = (TextView) rootView.findViewById(R.id.add_event_date);
+        addEventHeader.setText(calendarId);
+
         // Get current time
         final Calendar c = Calendar.getInstance();
-        hour = c.get(Calendar.HOUR);
+        hour = c.get(Calendar.HOUR_OF_DAY);
         minute = c.get(Calendar.MINUTE);
         amOrPm = c.get(Calendar.AM_PM);
 
-        if (amOrPm == 0) {
+        if (amOrPm == Calendar.AM) {
             noonOrNight = "AM";
         } else {
             noonOrNight = "PM";
@@ -168,10 +172,10 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 // error case
                 hour = hour - 12;
                 futureHour = hour;
-            } else if(hour == 0){
+            } else if (hour == 0 || hour == 12) {
                 hour = 1;
                 futureHour = 1;
-            }else {
+            } else {
                 hour = hour + 1;
                 futureHour = hour;
             }
@@ -321,29 +325,32 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         //String amOrPm = ((Button)timePickerGroup.getChildAt(2)).getText().toString();
 
         Calendar calendar = Calendar.getInstance();
-        timePicker.setIs24HourView(false);
-
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.HOUR, hour);
+        calendar.set(Calendar.MINUTE, pickerMinute);
+        calendar.set(Calendar.HOUR_OF_DAY, pickerHour);
 
         hour = pickerHour;
         minute = pickerMinute;
 
         if (hour == 0) {
             displayHour = "12";
+            noonOrNight = "AM";
         } else if (hour > 12) {
-            hour = hour - 12;
-            displayHour = hour + "";
+            //hour = hour - 12;
+            displayHour = (hour - 12) + "";
+            noonOrNight = "PM";
         } else {
+            noonOrNight = "AM";
             displayHour = hour + "";
         }
+
+
         if (minute < 10) {
             displayMinute = "0" + minute;
         } else {
             displayMinute = minute + "";
         }
-
         String amOrPm = ((calendar.get(Calendar.AM_PM)) == Calendar.AM) ? "am" : "pm";
+
         timeLabel.setText(displayHour + ":" + displayMinute + " " + amOrPm);
     }
 
