@@ -17,10 +17,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!--<fragment-->
-        <!--android:id="@+id/fragment_event"-->
-        <!--android:name="amhamogus.com.daysoff.ui.EventDetailFragment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
-
 </RelativeLayout>

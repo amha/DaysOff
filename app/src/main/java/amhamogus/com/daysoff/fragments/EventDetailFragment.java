@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ import amhamogus.com.daysoff.utils.CollectionHelper;
  */
 public class EventDetailFragment extends Fragment {
 
+    private static final String TAG = "EVENT DETAIL";
     private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String ARG_EVENT_LIST = "eventList";
 
@@ -233,6 +235,7 @@ public class EventDetailFragment extends Fragment {
             if (output != null) {
                 if (output.size() > 0) {
 
+                    Log.d(TAG, "event list from server: " + output.size());
                     Date eventDate;
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -250,8 +253,11 @@ public class EventDetailFragment extends Fragment {
                             // Create error handling mechanism.
                         }
                     }
+
+
                     if (eventsOnASelectedDate.size() > 0) {
-                      // Add relevant events to the recycler view
+                        Log.d(TAG, "event found today");
+                        // Add relevant events to the recycler view
                         LinearLayoutManager layoutManager =
                                 new LinearLayoutManager(getActivity().getApplicationContext());
                         view.setLayoutManager(layoutManager);

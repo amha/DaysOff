@@ -1,6 +1,8 @@
 package amhamogus.com.daysoff.fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,6 +42,7 @@ import amhamogus.com.daysoff.utils.CollectionHelper;
  */
 public class CalendarFragment extends Fragment {
 
+    private static final String TAG = "CALENDAR FRAGMENT";
 
     /**
      * The fragment argument representing the section number for this
@@ -211,8 +214,19 @@ public class CalendarFragment extends Fragment {
         protected void onPostExecute(List<Event> output) {
 
             if (output == null || output.size() == 0) {
-                // TODO: display empty list view and ask user to
-                // select a different calendar
+                // notify user that there are no
+                // events for this calendar
+                mProgress.setVisibility(View.INVISIBLE);
+                calendar.setVisibility(View.VISIBLE);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.calendar_no_events)
+                        .setPositiveButton(R.string.calendar_positive_button,
+                                new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                            }
+                        });
+                builder.show();
             } else {
                 Collection<Date> dates = new ArrayList<>();
 

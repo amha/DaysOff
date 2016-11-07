@@ -8,13 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import java.util.Date;
+
 import amhamogus.com.daysoff.fragments.EventDetailFragment;
-import amhamogus.com.daysoff.model.EventCollection;
 
 public class EventsActivity extends AppCompatActivity
         implements EventDetailFragment.OnFragmentInteractionListener {
 
-    private static final String ARG_EVENT_LIST = "eventList";
     private static final String ARG_CURRENT_DATE = "currentDate";
 
     long selectedDate;
@@ -26,13 +26,18 @@ public class EventsActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
 
         Intent intent = getIntent();
-        EventCollection eventCollection = intent.getExtras().getParcelable(ARG_EVENT_LIST);
         selectedDate = intent.getExtras().getLong(ARG_CURRENT_DATE);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar()
+                    .setTitle(new Date(selectedDate).toString().substring(0, 10));
+        }
+
+
 
         EventDetailFragment fragment;
         fragment = EventDetailFragment.newInstance(selectedDate);
