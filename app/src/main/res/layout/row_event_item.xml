@@ -2,17 +2,42 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/event_row_height"
-    android:paddingLeft="@dimen/event_row_padding_left"
-    android:paddingStart="@dimen/event_row_padding_left"
     android:background="?android:attr/selectableItemBackground"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/event_row_padding_left"
+    android:paddingStart="@dimen/event_row_padding_left">
+
+
+    <TextView
+        android:id="@+id/event_list_time"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="11dp"
+        android:contentDescription="@string/event_list_time_content_desc"
+        android:text="@string/event_list_time_placeholder"
+        android:textStyle="normal|bold" />
 
     <TextView
         android:id="@+id/event_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/event_list_time"
+        android:contentDescription="@string/event_list_title_content_desc"
         android:text="@string/event_title"
         android:textAppearance="@android:style/TextAppearance.Material.Large" />
 
+    <TextView
+        android:id="@+id/event_list_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/event_title"
+        android:layout_marginTop="9dp"
+        android:contentDescription="@string/event_list_desc_content_desc"
+        android:maxLines="2"
+        android:text="@string/event_list_description_placeholder"
+        android:textSize="18sp" />
 </RelativeLayout>

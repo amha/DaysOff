@@ -29,7 +29,9 @@ public class EventsRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.mTextView.setText(dataModel.get(position).getEventSummary());
+        holder.title.setText(dataModel.get(position).getEventSummary());
+        holder.timeRange.setText(dataModel.get(position).getStartTime().toString());
+        holder.desc.setText(dataModel.get(position).getDesc());
     }
 
     @Override
@@ -39,11 +41,15 @@ public class EventsRecyclerViewAdapter
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        final TextView mTextView;
+        final TextView title;
+        final TextView timeRange;
+        final TextView desc;
 
         ViewHolder(View view) {
             super(view);
-            mTextView = (TextView) view.findViewById(R.id.event_title);
+            title = (TextView) view.findViewById(R.id.event_title);
+            timeRange = (TextView) view.findViewById(R.id.event_list_time);
+            desc = (TextView) view.findViewById(R.id.event_list_desc);
         }
     }
 }

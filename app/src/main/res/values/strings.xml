@@ -10,6 +10,8 @@
 
     <!-- Event List -->
     <string name="event_list_no_events">Kitty Sad. No events today. Schedule One?</string>
+    <string name="event_list_time_placeholder">9:00am - 10:00am</string>
+    <string name="event_list_description_placeholder">Going For A Walks, Have a Meal</string>
 
     <!-- Event Detail Screen -->
     <string name="when">When:</string>
@@ -43,4 +45,8 @@
     <string name="event_form_error_checkboxes">Pick at least 1 activity.</string>
 
 
+    <!-- Accessibility Content -->
+    <string name="event_list_title_content_desc">Name of Event</string>
+    <string name="event_list_time_content_desc">Time of Event</string>
+    <string name="event_list_desc_content_desc">Description of Event</string>
 </resources>
