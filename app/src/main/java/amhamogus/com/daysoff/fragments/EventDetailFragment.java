@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -45,7 +44,7 @@ import amhamogus.com.daysoff.utils.CollectionHelper;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link EventDetailFragment.OnFragmentInteractionListener} interface
+ * {@link EventDetailFragment.OnEventSelected} interface
  * to handle interaction events.
  * Use the {@link EventDetailFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -54,7 +53,6 @@ public class EventDetailFragment extends Fragment {
 
     private static final String TAG = "EVENT DETAIL";
     private static final String ARG_CURRENT_DATE = "currentDate";
-    private static final String ARG_EVENT_LIST = "eventList";
 
     private static final String PREF_FILE = "calendarSessionData";
     private static final String PREF_ACCOUNT_NAME = "accountName";
@@ -69,7 +67,7 @@ public class EventDetailFragment extends Fragment {
     RecyclerView view;
     CardView card;
 
-    private OnFragmentInteractionListener mListener;
+    private OnEventSelected mListener;
     GoogleAccountCredential mCredential;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
@@ -127,17 +125,11 @@ public class EventDetailFragment extends Fragment {
         return rootView;
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnEventSelected) {
+            mListener = (OnEventSelected) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -160,8 +152,8 @@ public class EventDetailFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+    public interface OnEventSelected {
+        void onFragmentInteraction(String message, DaysOffEvent event);
     }
 
     public class DividerItemDecoration extends RecyclerView.ItemDecoration {
@@ -262,7 +254,7 @@ public class EventDetailFragment extends Fragment {
                                 new LinearLayoutManager(getActivity().getApplicationContext());
                         view.setLayoutManager(layoutManager);
                         view.addItemDecoration(new DividerItemDecoration(getContext()));
-                        view.setAdapter(new EventsRecyclerViewAdapter(eventsOnASelectedDate));
+                        view.setAdapter(new EventsRecyclerViewAdapter(eventsOnASelectedDate, mListener));
 
                         // show relevant views
                         view.setVisibility(View.VISIBLE);

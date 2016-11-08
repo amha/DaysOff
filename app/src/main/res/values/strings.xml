@@ -40,10 +40,15 @@
     <string name="calendar_no_events">No events for this Calendar.</string>
     <string name="calendar_positive_button">Okay</string>
 
+    <!-- Single Event Detail -->
+    <string name="single_event_date">Date</string>
+    <string name="single_event_time">Time</string>
+    <string name="single_event_desc">Description</string>
+    <string name="single_event_location">Location</string>
+
     <!-- Errors -->
     <string name="event_form_error_summary">You need a summary, more than 4 characters.</string>
     <string name="event_form_error_checkboxes">Pick at least 1 activity.</string>
-
 
     <!-- Accessibility Content -->
     <string name="event_list_title_content_desc">Name of Event</string>

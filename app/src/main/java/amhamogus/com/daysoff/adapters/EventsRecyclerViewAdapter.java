@@ -9,15 +9,18 @@ import android.widget.TextView;
 import java.util.List;
 
 import amhamogus.com.daysoff.R;
+import amhamogus.com.daysoff.fragments.EventDetailFragment;
 import amhamogus.com.daysoff.model.DaysOffEvent;
 
 public class EventsRecyclerViewAdapter
         extends RecyclerView.Adapter<EventsRecyclerViewAdapter.ViewHolder> {
 
     private List<DaysOffEvent> dataModel;
+    private EventDetailFragment.OnEventSelected mListener;
 
-    public EventsRecyclerViewAdapter(List<DaysOffEvent> data) {
+    public EventsRecyclerViewAdapter(List<DaysOffEvent> data, EventDetailFragment.OnEventSelected callback) {
         dataModel = data;
+        mListener = callback;
     }
 
     @Override
@@ -31,7 +34,16 @@ public class EventsRecyclerViewAdapter
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.title.setText(dataModel.get(position).getEventSummary());
         holder.timeRange.setText(dataModel.get(position).getStartTime().toString());
-        holder.desc.setText(dataModel.get(position).getDesc());
+        // holder.desc.setText(dataModel.get(position).getDesc());
+
+        holder.title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onFragmentInteraction(holder.title.getText().toString(), dataModel.get(position));
+                }
+            }
+        });
     }
 
     @Override
@@ -43,13 +55,14 @@ public class EventsRecyclerViewAdapter
 
         final TextView title;
         final TextView timeRange;
-        final TextView desc;
+        //  final TextView desc;
+
 
         ViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.event_title);
             timeRange = (TextView) view.findViewById(R.id.event_list_time);
-            desc = (TextView) view.findViewById(R.id.event_list_desc);
+            // desc = (TextView) view.findViewById(R.id.event_list_desc);
         }
     }
 }

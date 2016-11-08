@@ -247,7 +247,6 @@ public class CalendarFragment extends Fragment {
 
     public interface OnCalendarSelectionListener {
         void onCalendarSelected(Date date, EventCollection events);
-
     }
 
 }

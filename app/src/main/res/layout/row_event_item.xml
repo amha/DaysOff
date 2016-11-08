@@ -29,15 +29,4 @@
         android:text="@string/event_title"
         android:textAppearance="@android:style/TextAppearance.Material.Large" />
 
-    <TextView
-        android:id="@+id/event_list_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/event_title"
-        android:layout_marginTop="9dp"
-        android:contentDescription="@string/event_list_desc_content_desc"
-        android:maxLines="2"
-        android:text="@string/event_list_description_placeholder"
-        android:textSize="18sp" />
 </RelativeLayout>

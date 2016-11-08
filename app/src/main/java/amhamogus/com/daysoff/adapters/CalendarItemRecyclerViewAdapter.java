@@ -58,8 +58,6 @@ public class CalendarItemRecyclerViewAdapter
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(Integer.toString(position));
         holder.mContentView.setText(mValues.get(position));
-//        holder.mContentView.setTextColor(Integer.valueOf(calendarListEntries.get(position).getBackgroundColor(), 16).intValue());
-//        Log.d("AMHA-COlor", "color:" + Integer.valueOf(calendarListEntries.get(position).getBackgroundColor().substring(1), 16).intValue());
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

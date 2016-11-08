@@ -16,6 +16,7 @@ public class DaysOffEvent implements Parcelable {
     String startTime;
     String endTime;
     String desc;
+    String location;
 
     @Override
     public int describeContents() {
@@ -28,6 +29,7 @@ public class DaysOffEvent implements Parcelable {
         out.writeString(startTime);
         out.writeString(endTime);
         out.writeString(desc);
+        out.writeString(location);
     }
 
     public static final Parcelable.Creator<DaysOffEvent> CREATOR =
@@ -48,6 +50,7 @@ public class DaysOffEvent implements Parcelable {
         this.startTime = in.readString();
         this.endTime = in.readString();
         this.desc = in.readString();
+        this.location = in.readString();
     }
 
     public DaysOffEvent(Event event) {
@@ -55,6 +58,7 @@ public class DaysOffEvent implements Parcelable {
         this.startTime = event.getStart().getDateTime().toStringRfc3339();
         this.endTime = event.getEnd().getDateTime().toStringRfc3339();
         this.desc = event.getDescription();
+        this.location = event.getLocation();
     }
 
     public String getEventSummary() {
@@ -71,5 +75,11 @@ public class DaysOffEvent implements Parcelable {
 
     public String getDesc() {
         return this.desc;
+    }
+
+    public String getLocation()
+
+    {
+        return this.location;
     }
 }
