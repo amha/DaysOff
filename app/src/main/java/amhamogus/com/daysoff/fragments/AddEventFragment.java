@@ -1,9 +1,11 @@
 package amhamogus.com.daysoff.fragments;
 
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -382,6 +384,18 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             } catch (Exception e) {
                 cancel(true);
                 Log.d(TAG, "error" + e.toString());
+
+                // build dialog to inform user their event wasn't
+                // successfully added
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.add_event_network_error_title)
+                        .setMessage(R.string.add_event_network_error_message)
+                        .setPositiveButton(R.string.calendar_positive_button,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                    }
+                                });
+                builder.show();
             }
             return null;
         }

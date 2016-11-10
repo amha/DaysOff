@@ -47,8 +47,10 @@
     <string name="single_event_location">Location</string>
 
     <!-- Errors -->
-    <string name="event_form_error_summary">You need a summary, more than 4 characters.</string>
+    <string name="event_form_error_summary">You must add a summary to proceed.</string>
     <string name="event_form_error_checkboxes">Pick at least 1 activity.</string>
+    <string name="add_event_network_error_title">Error Title</string>
+    <string name="add_event_network_error_message">Add error message here.</string>
 
     <!-- Accessibility Content -->
     <string name="event_list_title_content_desc">Name of Event</string>

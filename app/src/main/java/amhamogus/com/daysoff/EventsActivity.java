@@ -56,7 +56,7 @@ public class EventsActivity extends AppCompatActivity
         Intent intent = new Intent(getApplicationContext(), SingleEventActivity.class);
         Bundle args = new Bundle();
         args.putString("DESC", event.getDesc());
-        args.putString("TIME", event.getStartTime());
+        args.putString("TIME", event.getTimeRange());
         args.putString("LOCATION", event.getLocation());
         intent.putExtras(args);
         startActivity(intent);

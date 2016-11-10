@@ -5,9 +5,6 @@ import android.os.Parcelable;
 
 import com.google.api.services.calendar.model.Event;
 
-/**
- * Created by amhamogus on 10/1/16.
- */
 
 public class DaysOffEvent implements Parcelable {
 
@@ -81,5 +78,10 @@ public class DaysOffEvent implements Parcelable {
 
     {
         return this.location;
+    }
+
+    public String getTimeRange() {
+       return this.startTime.substring(12, 18) + "-" +
+                this.endTime.substring(12, 15);
     }
 }

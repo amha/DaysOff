@@ -63,10 +63,14 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize credentials and service object.
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        mList = (MainListFragment) fragmentManager.findFragmentByTag("list");
+
+        if (mList == null) {
+            mList = mList.newInstance(1);
+            fragmentManager.beginTransaction()
+                    .add(R.id.list_wrapper, mList, "list").commit();
+        }
 
         settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         editor = settings.edit();
@@ -76,16 +80,10 @@ public class MainActivity extends AppCompatActivity
             getCalendarList();
         }
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        mList = (MainListFragment) fragmentManager.findFragmentByTag("list");
-
-        if (mList == null) {
-            mList = mList.newInstance(1);
-            fragmentManager
-                    .beginTransaction()
-                    .add(R.id.list_wrapper, mList, "list")
-                    .commit();
-        }
+        // Initialize credentials and service object.
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
     }
 
     @Override
