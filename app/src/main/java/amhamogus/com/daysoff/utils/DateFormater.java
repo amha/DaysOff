@@ -34,28 +34,31 @@ public class DateFormater {
         timeCalendar.setTime(date);
 
         // formatting for the string selectedDateTime
-        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm");
 
         // get user selected date
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
+
 
         try {
-            Date temp = timeFormat.parse(selectedDateTime);
             timeCalendar.setTime(timeFormat.parse(selectedDateTime));
-
+            Log.d(TAG, "CALENDAR DETAILS: " + timeCalendar.get(Calendar.HOUR)
+                    + ":" + timeCalendar.get(Calendar.MINUTE));
+            calendar.set(Calendar.DATE, timeCalendar.get(Calendar.DATE));
             calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
             calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+            Log.d(TAG, "CALENDAR DETAILS 2: " + calendar.get(Calendar.HOUR)
+                    + ":" + calendar.get(Calendar.MINUTE));
 
         } catch (ParseException e) {
             Log.d(TAG, "Parse: " + e.getMessage());
         }
 
-        if (amOrPm == "AM") {
-            calendar.set(Calendar.AM_PM, Calendar.AM);
-        } else {
-            calendar.set(Calendar.AM_PM, Calendar.PM);
-        }
+//        if (amOrPm == "AM") {
+//            calendar.set(Calendar.AM_PM, Calendar.AM);
+//        } else {
+//            calendar.set(Calendar.AM_PM, Calendar.PM);
+//        }
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));

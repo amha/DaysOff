@@ -63,6 +63,8 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     int hour;
     int minute;
     int amOrPm;
+    DateTime start;
+    DateTime end;
 
     String noonOrNight;
 
@@ -155,7 +157,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             if (hour > 12) {
                 // error case
                 hour = hour - 12;
-                futureHour = hour;
+                futureHour = hour + 1;
             } else if (hour == 0) {
                 // noon or midnight is set to '0' which is not
                 // helpful for users, thus we change 0 to 12
@@ -219,7 +221,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             if (validate()) {
 
                 // Convert time into RFC3339 format
-                DateTime start = DateFormater.getDateTime(
+                start = DateFormater.getDateTime(
                         startTimeLabel.getText().toString(),
                         currentDate,
                         noonOrNight);
@@ -229,7 +231,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                         .setTimeZone(Calendar.getInstance().getTimeZone().getID());
 
 
-                DateTime end = DateFormater.getDateTime(
+                end = DateFormater.getDateTime(
                         endTimeLabel.getText().toString(),
                         currentDate,
                         noonOrNight);
@@ -241,6 +243,12 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 // Populate event object with user input
                 mEvent.setSummary(summary.getText().toString());
                 mEvent.setStart(startDateTime).setEnd(endDateTime);
+
+                try {
+                    Log.d(TAG, "Event details: " + mEvent.toPrettyString());
+                } catch (IOException e) {
+
+                }
 
                 String decription = "";
 
@@ -364,7 +372,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         return true;
     }
 
-    private class AddEventTask extends AsyncTask<Event, Void, String> {
+    private class AddEventTask extends AsyncTask<Event, Void, Event> {
 
         private com.google.api.services.calendar.Calendar mService = null;
 
@@ -378,15 +386,28 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         }
 
         @Override
-        protected String doInBackground(Event... events) {
+        protected Event doInBackground(Event... events) {
+            Event mEvent = null;
             try {
-                insertEventData(events[0]);
+                mEvent = insertEventData(events[0]);
             } catch (Exception e) {
                 cancel(true);
                 Log.d(TAG, "error" + e.toString());
 
-                // build dialog to inform user their event wasn't
-                // successfully added
+                // build dialog to inform user their event wasn't// successfully added
+
+            }
+            return mEvent;
+        }
+
+        private Event insertEventData(Event event) throws IOException {
+            // Send insert command to backend
+            return mService.events().insert(calendarId, event).execute();
+        }
+
+        @Override
+        protected void onPostExecute(Event output) {
+            if (output == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.add_event_network_error_title)
                         .setMessage(R.string.add_event_network_error_message)
@@ -396,21 +417,12 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                                     }
                                 });
                 builder.show();
+            } else {
+                Intent intent = new Intent(getActivity().getApplicationContext(), EventsActivity.class);
+                intent.putExtra(ARG_CURRENT_DATE, currentDate.getTime());
+                startActivity(intent);
+                Toast.makeText(getContext(), "Added Event!", Toast.LENGTH_SHORT).show();
             }
-            return null;
-        }
-
-        private void insertEventData(Event event) throws IOException {
-            // Send insert command to backend
-            mService.events().insert(calendarId, event).execute();
-        }
-
-        @Override
-        protected void onPostExecute(String output) {
-            Intent intent = new Intent(getActivity().getApplicationContext(), EventsActivity.class);
-            intent.putExtra(ARG_CURRENT_DATE, currentDate.getTime());
-            startActivity(intent);
-            Toast.makeText(getContext(), "Added Event!", Toast.LENGTH_SHORT).show();
         }
     }
 }
