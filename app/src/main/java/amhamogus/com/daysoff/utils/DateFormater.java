@@ -19,6 +19,7 @@ public class DateFormater {
 
     private static final String TAG = "DATE_FORMATTER_LOG";
 
+
     /**
      * Helper method that adds a user selected event time
      * to a {@link DateTime} object.
@@ -29,39 +30,57 @@ public class DateFormater {
      */
     public static DateTime getDateTime(String selectedDateTime, Date date, String amOrPm) {
 
-        // object we're going to pass to the server
-        Calendar timeCalendar = Calendar.getInstance();
-        timeCalendar.setTime(date);
-
-        // formatting for the string selectedDateTime
-        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm");
-
-        // get user selected date
-        Calendar calendar = Calendar.getInstance();
-
+        Date timeOfEvent;
+        Calendar calendarForTimeOfEvent;
+        SimpleDateFormat format = new SimpleDateFormat("h:mm a");
+        calendarForTimeOfEvent = Calendar.getInstance();
 
         try {
-            timeCalendar.setTime(timeFormat.parse(selectedDateTime));
-            Log.d(TAG, "CALENDAR DETAILS: " + timeCalendar.get(Calendar.HOUR)
-                    + ":" + timeCalendar.get(Calendar.MINUTE));
-            calendar.set(Calendar.DATE, timeCalendar.get(Calendar.DATE));
-            calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
-            calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
-            Log.d(TAG, "CALENDAR DETAILS 2: " + calendar.get(Calendar.HOUR)
-                    + ":" + calendar.get(Calendar.MINUTE));
+            timeOfEvent = format.parse(selectedDateTime);
+            calendarForTimeOfEvent.setTime(timeOfEvent);
+
+            Log.d(TAG, "calendarForTimeOfEvent: "
+                    + "HOUR: " + calendarForTimeOfEvent.get(Calendar.HOUR_OF_DAY)
+                    + "MINUTE: " + calendarForTimeOfEvent.get(Calendar.MINUTE)
+                    + "YEAR: " + calendarForTimeOfEvent.get(Calendar.YEAR)
+                    + "DAY OF MONTH: " + calendarForTimeOfEvent.get(Calendar.DAY_OF_MONTH));
 
         } catch (ParseException e) {
-            Log.d(TAG, "Parse: " + e.getMessage());
+
         }
 
-//        if (amOrPm == "AM") {
-//            calendar.set(Calendar.AM_PM, Calendar.AM);
-//        } else {
-//            calendar.set(Calendar.AM_PM, Calendar.PM);
-//        }
+        Calendar calendarForDate = Calendar.getInstance();
+        calendarForDate.setTime(date);
+        calendarForDate.set(Calendar.HOUR_OF_DAY, calendarForTimeOfEvent.get(Calendar.HOUR_OF_DAY));
+        calendarForDate.set(Calendar.MINUTE, calendarForTimeOfEvent.get(Calendar.MINUTE));
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return new DateTime(format.format(calendar.getTime()));
+        Log.d(TAG, "calendarForDate: "
+                + "HOUR: " + calendarForDate.get(Calendar.HOUR)
+                + "MINUTE: " + calendarForDate.get(Calendar.MINUTE)
+                + "YEAR: " + calendarForDate.get(Calendar.YEAR)
+                + "DAY OF MONTH: " + calendarForDate.get(Calendar.DAY_OF_MONTH));
+
+        SimpleDateFormat rfc330Format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+        rfc330Format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        DateTime temp = new DateTime(rfc330Format.format(calendarForDate.getTime()));
+
+        Log.d(TAG, "rfc339 Format: " + temp.toString());
+
+        return temp;
+    }
+
+    public static String getTimeRange(String rfc339DateTime) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(formatter.parse(rfc339DateTime));
+            String startAmOrPm = ((calendar.get(Calendar.AM_PM)) == Calendar.AM) ? "am" : "pm";
+
+            String hour = ((calendar.get(Calendar.HOUR)) == 0) ? "12" : calendar.get(Calendar.HOUR) + "";
+            return "" + hour + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + " " + startAmOrPm;
+        } catch (ParseException exception) {
+            Log.d(TAG, exception.toString());
+        }
+        return "bloop";
     }
 }

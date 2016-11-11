@@ -28,7 +28,7 @@
         <activity
             android:name=".EventsActivity"
             android:label="@string/title_activity_event_detail"
-            android:launchMode="standard"
+            android:launchMode="singleTop"
             android:parentActivityName=".CalendarActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -43,7 +43,7 @@
         <activity
             android:name=".AddEventActivity"
             android:label="@string/title_activity_add_event"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:parentActivityName=".EventsActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -54,7 +54,7 @@
         <activity android:name=".SingleEventActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".EventsActivity" />
+                android:value="amhamogus.com.daysoff.EventsActivity" />
         </activity>
     </application>
 </manifest>

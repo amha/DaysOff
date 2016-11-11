@@ -244,11 +244,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                 mEvent.setSummary(summary.getText().toString());
                 mEvent.setStart(startDateTime).setEnd(endDateTime);
 
-                try {
-                    Log.d(TAG, "Event details: " + mEvent.toPrettyString());
-                } catch (IOException e) {
-
-                }
 
                 String decription = "";
 
@@ -418,7 +413,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                                 });
                 builder.show();
             } else {
-                Intent intent = new Intent(getActivity().getApplicationContext(), EventsActivity.class);
+                Intent intent = new Intent(getContext(), EventsActivity.class);
                 intent.putExtra(ARG_CURRENT_DATE, currentDate.getTime());
                 startActivity(intent);
                 Toast.makeText(getContext(), "Added Event!", Toast.LENGTH_SHORT).show();

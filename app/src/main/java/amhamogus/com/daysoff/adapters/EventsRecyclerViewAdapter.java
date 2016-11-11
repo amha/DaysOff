@@ -33,7 +33,7 @@ public class EventsRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.title.setText(dataModel.get(position).getEventSummary());
-        holder.timeRange.setText(dataModel.get(position).getStartTime().toString());
+        holder.timeRange.setText(dataModel.get(position).getTimeRange().toString());
         // holder.desc.setText(dataModel.get(position).getDesc());
 
         holder.title.setOnClickListener(new View.OnClickListener() {

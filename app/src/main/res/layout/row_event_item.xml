@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/event_row_frame"
     android:layout_width="match_parent"
     android:layout_height="@dimen/event_row_height"
     android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical"
     android:paddingLeft="@dimen/event_row_padding_left"
     android:paddingStart="@dimen/event_row_padding_left">
-
 
     <TextView
         android:id="@+id/event_list_time"
@@ -17,6 +17,8 @@
         android:layout_marginTop="11dp"
         android:contentDescription="@string/event_list_time_content_desc"
         android:text="@string/event_list_time_placeholder"
+        android:textColor="?android:attr/colorAccent"
+        android:textSize="12sp"
         android:textStyle="normal|bold" />
 
     <TextView
@@ -26,7 +28,21 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/event_list_time"
         android:contentDescription="@string/event_list_title_content_desc"
+        android:fontFamily="sans-serif-light"
         android:text="@string/event_title"
-        android:textAppearance="@android:style/TextAppearance.Material.Large" />
+        android:textAllCaps="false"
+        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        android:textSize="30sp"
+        android:typeface="sans" />
+
+    <ImageView
+        android:id="@+id/next_event_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="11dp"
+        android:contentDescription="@string/event_list_row_next"
+        android:src="@drawable/ic_navigate_next_black_24dp" />
 
 </RelativeLayout>

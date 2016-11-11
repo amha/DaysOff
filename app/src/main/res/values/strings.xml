@@ -56,4 +56,5 @@
     <string name="event_list_title_content_desc">Name of Event</string>
     <string name="event_list_time_content_desc">Time of Event</string>
     <string name="event_list_desc_content_desc">Description of Event</string>
+    <string name="event_list_row_next">Navigation Icon that denotes Next.</string>
 </resources>

@@ -213,7 +213,7 @@ public class CalendarFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Event> output) {
 
-            if (output == null || output.size() == 0) {
+            if (output == null || output.size()  < 1) {
                 // notify user that there are no
                 // events for this calendar
                 mProgress.setVisibility(View.INVISIBLE);

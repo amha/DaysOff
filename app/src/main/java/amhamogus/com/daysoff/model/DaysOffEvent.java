@@ -5,8 +5,12 @@ import android.os.Parcelable;
 
 import com.google.api.services.calendar.model.Event;
 
+import amhamogus.com.daysoff.utils.DateFormater;
+
 
 public class DaysOffEvent implements Parcelable {
+
+    private String TAG = "DAYS OFF EVENT";
 
     private Event eventDetails;
     String eventSummary;
@@ -81,7 +85,7 @@ public class DaysOffEvent implements Parcelable {
     }
 
     public String getTimeRange() {
-       return this.startTime.substring(12, 18) + "-" +
-                this.endTime.substring(12, 15);
+        return DateFormater.getTimeRange(startTime)
+                + " - " + DateFormater.getTimeRange(endTime);
     }
 }
