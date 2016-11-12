@@ -1,6 +1,7 @@
 package amhamogus.com.daysoff.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -14,6 +15,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -62,6 +66,7 @@ public class EventDetailFragment extends Fragment {
     private String calendarId;
     private Date currentDate;
     private EventCollection events;
+    private List<DaysOffEvent> eventsOnASelectedDate;
     View rootView;
 
     RecyclerView view;
@@ -95,12 +100,12 @@ public class EventDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentDate = new Date(getArguments().getLong(ARG_CURRENT_DATE));
+        setHasOptionsMenu(true);
 
         SharedPreferences settings = getActivity()
                 .getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         accountName = settings.getString(PREF_ACCOUNT_NAME, null);
         calendarId = settings.getString(PREF_CALENDAR_ID, null);
-
 
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getContext(), Arrays.asList(SCOPES))
@@ -140,6 +145,38 @@ public class EventDetailFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_event_share, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_share_action:
+                StringBuilder message = new StringBuilder();
+                message.append("Here's my schedule: ");
+
+
+                if (eventsOnASelectedDate.size() > 0) {
+                    for (int i = 0; i < eventsOnASelectedDate.size(); i++) {
+                        message.append(eventsOnASelectedDate.get(i).getEventSummary() + ", "
+                                + eventsOnASelectedDate.get(i).getTimeRange() +
+                                eventsOnASelectedDate.get(i).getDesc() + ", ");
+                    }
+                }
+
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, message.toString());
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+                break;
+        }
+        return true;
     }
 
     /**
@@ -226,13 +263,11 @@ public class EventDetailFragment extends Fragment {
         protected void onPostExecute(List<Event> output) {
             if (output != null) {
                 if (output.size() > 0) {
-
-                    Log.d(TAG, "event list from server: " + output.size());
                     Date eventDate;
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
                     events = new EventCollection(CollectionHelper.convertListToCollection(output));
-                    List<DaysOffEvent> eventsOnASelectedDate = new ArrayList<>();
+                    eventsOnASelectedDate = new ArrayList<>();
 
                     // Get events for the user selected day
                     for (int i = 0; i < events.getEvents().size(); i++) {
