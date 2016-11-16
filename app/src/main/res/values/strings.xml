@@ -53,9 +53,15 @@
     <string name="add_event_network_error_title">Error Title</string>
     <string name="add_event_network_error_message">Add error message here.</string>
 
+    <!-- Widget -->
+    <string name="default_widget_text">Setup App to Use Widget</string>
+    <string name="default_widget_button">Setup</string>
+    <string name="add_widget">Add widget</string>
+
     <!-- Accessibility Content -->
     <string name="event_list_title_content_desc">Name of Event</string>
     <string name="event_list_time_content_desc">Time of Event</string>
     <string name="event_list_desc_content_desc">Description of Event</string>
     <string name="event_list_row_next">Navigation Icon that denotes Next.</string>
+    <string name="calendar_list_row">Name of Calendar</string>
 </resources>

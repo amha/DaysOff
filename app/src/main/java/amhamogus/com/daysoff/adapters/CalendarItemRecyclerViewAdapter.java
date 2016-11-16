@@ -56,7 +56,7 @@ public class CalendarItemRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(Integer.toString(position));
+        //holder.mIdView.setText(Integer.toString(position));
         holder.mContentView.setText(mValues.get(position));
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,7 +77,7 @@ public class CalendarItemRecyclerViewAdapter
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         final View mView;
-        final TextView mIdView;
+        //final TextView mIdView;
         final TextView mContentView;
         String mItem;
         public String color;
@@ -85,7 +85,7 @@ public class CalendarItemRecyclerViewAdapter
         ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
+            //mIdView = (TextView) view.findViewById(R.id.id);
             mContentView = (TextView) view.findViewById(R.id.content);
         }
 

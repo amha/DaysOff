@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity
         EasyPermissions.PermissionCallbacks {
 
     public Toast mOutputText;
+
+    String TAG = "MAIN ACTIVITY";
 
     /**
      * The key for the list parameter.
@@ -73,17 +76,16 @@ public class MainActivity extends AppCompatActivity
         }
 
         settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
-        editor = settings.edit();
-        editor.commit();
-
-        if (!settings.contains(PREF_ACCOUNT_NAME)) {
-            getCalendarList();
-        }
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+        if (!settings.contains(PREF_ACCOUNT_NAME)) {
+            getCalendarList();
+        }
+
     }
 
     @Override
@@ -95,6 +97,9 @@ public class MainActivity extends AppCompatActivity
 
         if (calendarID != null & calendarName != null) {
             String name = settings.getString(PREF_ACCOUNT_NAME, null);
+
+            editor = settings.edit();
+            editor.commit();
 
             editor.putString(PREF_CALENDAR_NAME, calendarName);
             editor.putString(PREF_CALENDAR_ID, calendarID);
@@ -123,14 +128,14 @@ public class MainActivity extends AppCompatActivity
             String accountName =
                     getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
 
+            Log.d(TAG, "CHOOSE ACCOUNT METHOD BEING RUN");
+
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
                 getCalendarList();
             } else {
                 // Start a dialog from which the user can choose an account
-                startActivityForResult(
-                        mCredential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                startActivityForResult(mCredential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
             }
         } else {
             // Request the GET_ACCOUNTS permission via a user dialog
@@ -185,6 +190,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
         // Do nothing.
+        Log.d(TAG, "PERMISSION DENIED");
     }
 
     /**
@@ -274,9 +280,11 @@ public class MainActivity extends AppCompatActivity
 
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d(TAG, "ON ACTIVITY RESULT CALLED");
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
+                    Log.d(TAG, "Not okay");
                     mOutputText.setText(
                             "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");
@@ -288,6 +296,7 @@ public class MainActivity extends AppCompatActivity
                 if (resultCode == RESULT_OK
                         && data != null && data.getExtras() != null) {
 
+                    Log.d(TAG, "RESULT OK");
                     String accountName =
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
 
@@ -307,6 +316,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
+                    Log.d(TAG, "RESULT OKAY AND CAL");
                     getCalendarList();
                 }
                 break;
