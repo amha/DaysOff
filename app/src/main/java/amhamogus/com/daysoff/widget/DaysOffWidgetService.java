@@ -35,6 +35,7 @@ public class DaysOffWidgetService extends RemoteViewsService {
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     GoogleAccountCredential mCredential;
     Context mContext;
+    List<CalendarListEntry> list;
     private int length = 0;
     private String TAG = "WIDGET SERVICE CLASS";
 
@@ -44,18 +45,14 @@ public class DaysOffWidgetService extends RemoteViewsService {
     }
 
 
-    class DaysOffFactory implements RemoteViewsService.RemoteViewsFactory {
+    private class DaysOffFactory implements RemoteViewsService.RemoteViewsFactory {
 
         public DaysOffFactory(Context context, Intent intent) {
             mContext = context;
-            Log.d(TAG, "service constuctor called");
         }
 
         @Override
         public void onCreate() {
-
-            Log.d(TAG, "ON WIDGET CREATE called");
-
             SharedPreferences preferences =
                     getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
             String name = preferences.getString(PREF_ACCOUNT_NAME, null);
@@ -65,7 +62,9 @@ public class DaysOffWidgetService extends RemoteViewsService {
                         getApplicationContext(), Arrays.asList(SCOPES))
                         .setSelectedAccountName(name)
                         .setBackOff(new ExponentialBackOff());
+
                 new RequestCalendarListTask(mCredential).execute();
+
             } else {
                 Log.d(TAG, "ACCOUNT NAME NOT SET");
             }
@@ -87,8 +86,9 @@ public class DaysOffWidgetService extends RemoteViewsService {
         @Override
         public RemoteViews getViewAt(int position) {
             RemoteViews remoteViews =
-                    new RemoteViews(mContext.getPackageName(), R.layout.row_calendar_item);
-            remoteViews.setTextViewText(R.id.content, "Potato");
+                    new RemoteViews(mContext.getPackageName(), R.layout.row_widget_item);
+
+            remoteViews.setTextViewText(R.id.widget_content, list.get(position).getSummary());
             return remoteViews;
         }
 
@@ -99,7 +99,7 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         public int getViewTypeCount() {
-            return 0;
+            return 1;
         }
 
         @Override
@@ -150,21 +150,12 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         protected void onPostExecute(List<CalendarListEntry> output) {
-
-            Log.d(TAG, output.toString());
-
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
-
             } else {
+                Log.d(TAG, output.toString());
                 length = output.size();
-//                returnedCalendarList = output;
-//                recyclerView.setLayoutManager(
-//                        new LinearLayoutManager(getContext()));
-//                recyclerView.setAdapter(
-//                        new CalendarItemRecyclerViewAdapter(output, mListener));
-//
-
+                list = output;
             }
         }
     }

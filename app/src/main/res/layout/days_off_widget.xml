@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
@@ -7,25 +8,28 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="40dp"
         android:background="@color/colorPrimary"
         android:gravity="center_vertical"
-        android:text="Widget Title"
-        android:textColor="#fff" />
+        android:padding="5dp"
+        android:text="@string/widget_title"
+        android:textColor="#fff"
+        android:fontFamily="sans-serif"
+        android:textSize="18sp"
+        android:layout_height="50dp"
+        tools:text="DaysOff Calendars" />
 
     <LinearLayout
         android:id="@+id/widget_empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="5dp">
 
         <TextView
             android:id="@+id/default_widget_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:layout_margin="8dp"
             android:background="@color/colorPrimary"
             android:text="@string/default_widget_text"
@@ -37,6 +41,7 @@
     <ListView
         android:id="@+id/widget_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="wrap_content"
+        android:padding="5dp" />
 
 </LinearLayout>

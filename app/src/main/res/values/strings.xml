@@ -57,6 +57,7 @@
     <string name="default_widget_text">Setup App to Use Widget</string>
     <string name="default_widget_button">Setup</string>
     <string name="add_widget">Add widget</string>
+    <string name="widget_title">DaysOff Calendars</string>
 
     <!-- Accessibility Content -->
     <string name="event_list_title_content_desc">Name of Event</string>
