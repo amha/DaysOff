@@ -4,7 +4,7 @@
     android:initialLayout="@layout/days_off_widget"
     android:minHeight="180dp"
     android:minWidth="180dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/days_off_widget_preview"
     android:resizeMode="vertical"
     android:updatePeriodMillis="30000"
     android:widgetCategory="home_screen"/>

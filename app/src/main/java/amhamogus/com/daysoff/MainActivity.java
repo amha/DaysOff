@@ -32,10 +32,10 @@ public class MainActivity extends AppCompatActivity
         implements MainListFragment.OnListFragmentInteractionListener,
         EasyPermissions.PermissionCallbacks {
 
-    public Toast mOutputText;
-
-    String TAG = "MAIN ACTIVITY";
-
+    static final int REQUEST_ACCOUNT_PICKER = 1000;
+    static final int REQUEST_AUTHORIZATION = 1001;
+    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
+    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
     /**
      * The key for the list parameter.
      */
@@ -44,22 +44,17 @@ public class MainActivity extends AppCompatActivity
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_CALENDAR_NAME = "calendarName";
     private static final String PREF_CALENDAR_ID = "calendarId";
-
-    GoogleAccountCredential mCredential;
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
-
+    public Toast mOutputText;
+    String TAG = "MAIN ACTIVITY";
+    GoogleAccountCredential mCredential;
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
     /**
      * A instance of {@link MainListFragment} that displays a
      * collection of events.
      */
     private MainListFragment mList;
-
-    SharedPreferences settings;
-    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +63,11 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         mList = (MainListFragment) fragmentManager.findFragmentByTag("list");
-
         if (mList == null) {
             mList = mList.newInstance(1);
             fragmentManager.beginTransaction()
-                    .add(R.id.list_wrapper, mList, "list").commit();
+                    .add(R.id.list_wrapper, mList, "list")
+                    .commit();
         }
 
         settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
@@ -85,7 +80,6 @@ public class MainActivity extends AppCompatActivity
         if (!settings.contains(PREF_ACCOUNT_NAME)) {
             getCalendarList();
         }
-
     }
 
     @Override
@@ -99,8 +93,6 @@ public class MainActivity extends AppCompatActivity
             String name = settings.getString(PREF_ACCOUNT_NAME, null);
 
             editor = settings.edit();
-            editor.commit();
-
             editor.putString(PREF_CALENDAR_NAME, calendarName);
             editor.putString(PREF_CALENDAR_ID, calendarID);
             editor.commit();

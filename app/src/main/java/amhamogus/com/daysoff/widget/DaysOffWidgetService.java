@@ -1,9 +1,10 @@
 package amhamogus.com.daysoff.widget;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -34,9 +35,11 @@ public class DaysOffWidgetService extends RemoteViewsService {
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     GoogleAccountCredential mCredential;
+    String name;
+    int length = 0;
+    int mAppWidgetId;
     Context mContext;
     List<CalendarListEntry> list;
-    private int length = 0;
     private String TAG = "WIDGET SERVICE CLASS";
 
     @Override
@@ -44,28 +47,29 @@ public class DaysOffWidgetService extends RemoteViewsService {
         return new DaysOffFactory(getApplicationContext(), intent);
     }
 
-
     private class DaysOffFactory implements RemoteViewsService.RemoteViewsFactory {
 
         public DaysOffFactory(Context context, Intent intent) {
             mContext = context;
+            mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID);
+            name = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+                    .getString(PREF_ACCOUNT_NAME, null);
         }
 
         @Override
         public void onCreate() {
-            SharedPreferences preferences =
-                    getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
-            String name = preferences.getString(PREF_ACCOUNT_NAME, null);
-
             if (name != null) {
+                // The user has previously setup their google user account with
+                // the app. So we request their list of calendars from the server.
                 mCredential = GoogleAccountCredential.usingOAuth2(
                         getApplicationContext(), Arrays.asList(SCOPES))
                         .setSelectedAccountName(name)
                         .setBackOff(new ExponentialBackOff());
-
                 new RequestCalendarListTask(mCredential).execute();
-
             } else {
+                // The app has not been used before. As the user to launch
+                // the app and select a google account to proceed.
                 Log.d(TAG, "ACCOUNT NAME NOT SET");
             }
         }
@@ -85,10 +89,20 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         public RemoteViews getViewAt(int position) {
+
+            // Bind calendar data with the UI element
             RemoteViews remoteViews =
                     new RemoteViews(mContext.getPackageName(), R.layout.row_widget_item);
-
             remoteViews.setTextViewText(R.id.widget_content, list.get(position).getSummary());
+
+            // Prepare to pass data when the usr clicks on a row item
+            Bundle bundle = new Bundle();
+            bundle.putInt(DaysOffWidget.EXTRA_ITEM, position);
+            bundle.putString("ID", list.get(position).getId());
+            bundle.putString("NAME", list.get(position).getSummary());
+            Intent fillInIntent = new Intent();
+            fillInIntent.putExtras(bundle);
+            remoteViews.setOnClickFillInIntent(R.id.widget_content, fillInIntent);
             return remoteViews;
         }
 
@@ -150,8 +164,10 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         protected void onPostExecute(List<CalendarListEntry> output) {
+
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
+                Log.d(TAG, "Could not fetch calendar list.");
             } else {
                 Log.d(TAG, output.toString());
                 length = output.size();
