@@ -9,12 +9,11 @@
         android:id="@+id/widget_content"
         android:layout_width="match_parent"
         android:layout_height="44dp"
+        android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:gravity="center_vertical"
-        android:text="@string/calendar_no_events"
         android:maxLines="1"
-        android:textSize="18sp"
-        android:textAlignment="center"
-        android:ellipsize="end" />
+        android:text="@string/calendar_no_events"
+        android:textSize="18sp" />
 
 </LinearLayout>

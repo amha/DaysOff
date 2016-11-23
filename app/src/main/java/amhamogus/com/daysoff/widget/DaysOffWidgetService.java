@@ -34,20 +34,21 @@ public class DaysOffWidgetService extends RemoteViewsService {
     private static final String PREF_FILE = "calendarSessionData";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+    static int mAppWidgetId;
     GoogleAccountCredential mCredential;
     String name;
-    int length = 0;
-    int mAppWidgetId;
+    int length;
     Context mContext;
     List<CalendarListEntry> list;
+    RemoteViews remoteViews;
     private String TAG = "WIDGET SERVICE CLASS";
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new DaysOffFactory(getApplicationContext(), intent);
+        return new DaysOffFactory(this.getApplicationContext(), intent);
     }
 
-    private class DaysOffFactory implements RemoteViewsService.RemoteViewsFactory {
+    class DaysOffFactory implements RemoteViewsService.RemoteViewsFactory {
 
         public DaysOffFactory(Context context, Intent intent) {
             mContext = context;
@@ -55,17 +56,25 @@ public class DaysOffWidgetService extends RemoteViewsService {
                     AppWidgetManager.INVALID_APPWIDGET_ID);
             name = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
                     .getString(PREF_ACCOUNT_NAME, null);
-        }
 
-        @Override
-        public void onCreate() {
             if (name != null) {
-                // The user has previously setup their google user account with
-                // the app. So we request their list of calendars from the server.
                 mCredential = GoogleAccountCredential.usingOAuth2(
                         getApplicationContext(), Arrays.asList(SCOPES))
                         .setSelectedAccountName(name)
                         .setBackOff(new ExponentialBackOff());
+                new RequestCalendarListTask(mCredential).execute();
+            }
+        }
+
+        @Override
+        public void onCreate() {
+        }
+
+        @Override
+        public void onDataSetChanged() {
+            if (name != null) {
+                // The user has previously setup their google user account with
+                // the app. So we request their list of calendars from the server.
                 new RequestCalendarListTask(mCredential).execute();
             } else {
                 // The app has not been used before. As the user to launch
@@ -75,15 +84,12 @@ public class DaysOffWidgetService extends RemoteViewsService {
         }
 
         @Override
-        public void onDataSetChanged() {
-        }
-
-        @Override
         public void onDestroy() {
         }
 
         @Override
         public int getCount() {
+            Log.d(TAG, "GET COUNT = " + length);
             return length;
         }
 
@@ -91,7 +97,7 @@ public class DaysOffWidgetService extends RemoteViewsService {
         public RemoteViews getViewAt(int position) {
 
             // Bind calendar data with the UI element
-            RemoteViews remoteViews =
+            remoteViews =
                     new RemoteViews(mContext.getPackageName(), R.layout.row_widget_item);
             remoteViews.setTextViewText(R.id.widget_content, list.get(position).getSummary());
 
@@ -118,7 +124,7 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         public long getItemId(int position) {
-            return 0;
+            return position;
         }
 
         @Override
@@ -127,7 +133,7 @@ public class DaysOffWidgetService extends RemoteViewsService {
         }
     }
 
-    private class RequestCalendarListTask extends AsyncTask<Void, Void, List<CalendarListEntry>> {
+    class RequestCalendarListTask extends AsyncTask<Void, Void, List<CalendarListEntry>> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
 
@@ -141,11 +147,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
                     .build();
         }
 
-        /**
-         * Background task to call Google Calendar API.
-         *
-         * @param params no parameters needed for this task.
-         */
         @Override
         protected List<CalendarListEntry> doInBackground(Void... params) {
             try {
@@ -172,6 +173,9 @@ public class DaysOffWidgetService extends RemoteViewsService {
                 Log.d(TAG, output.toString());
                 length = output.size();
                 list = output;
+                AppWidgetManager.getInstance(mContext)
+                        .notifyAppWidgetViewDataChanged(mAppWidgetId, R.id.widget_list_view);
+
             }
         }
     }
