@@ -7,16 +7,11 @@
 
     <TextView
         android:id="@+id/content"
+        style="@style/ListItemStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:ellipsize="end"
         android:contentDescription=""
-        android:fontFamily="sans-serif-light"
-        android:maxLines="1"
-        android:text="@string/calendar_list_row"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium"
-        android:textSize="24sp"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused" />
+        android:text="@string/calendar_list_row" />
 
 </LinearLayout>

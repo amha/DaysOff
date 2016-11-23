@@ -13,6 +13,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity
     GoogleAccountCredential mCredential;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
+    FragmentManager fragmentManager;
+    ProgressBar progressBar;
     /**
      * A instance of {@link MainListFragment} that displays a
      * collection of events.
@@ -60,10 +64,13 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         mList = (MainListFragment) fragmentManager.findFragmentByTag("list");
+
         if (mList == null) {
+            progressBar.setVisibility(View.INVISIBLE);
             mList = mList.newInstance(1);
             fragmentManager.beginTransaction()
                     .add(R.id.list_wrapper, mList, "list")
@@ -302,7 +309,12 @@ public class MainActivity extends AppCompatActivity
                         editor.apply();
 
                         mCredential.setSelectedAccountName(accountName);
-                        getCalendarList();
+                        //getCalendarList();
+                        mList = mList.newInstance(1);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        fragmentManager.beginTransaction()
+                                .add(R.id.list_wrapper, mList, "list")
+                                .commit();
                     }
                 }
                 break;

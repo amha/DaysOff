@@ -3,8 +3,10 @@ package amhamogus.com.daysoff;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.Date;
@@ -32,10 +34,9 @@ public class EventsActivity extends AppCompatActivity
         selectedDate = intent.getExtras().getLong(ARG_CURRENT_DATE);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar()
-                    .setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar()
-                    .setTitle(new Date(selectedDate).toString().substring(0, 10));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(new Date(selectedDate).toString().substring(0, 10));
+
         }
 
         EventDetailFragment fragment;
@@ -60,5 +61,16 @@ public class EventsActivity extends AppCompatActivity
         args.putString("LOCATION", event.getLocation());
         intent.putExtras(args);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

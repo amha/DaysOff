@@ -10,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -38,19 +37,14 @@ import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
  */
 public class MainListFragment extends Fragment {
 
-    public Toast mOutputText;
-
-    GoogleAccountCredential mCredential;
-    private OnListFragmentInteractionListener mListener;
-
-    private List<CalendarListEntry> returnedCalendarList;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_FILE = "calendarSessionData";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
-
+    public Toast mOutputText;
+    GoogleAccountCredential mCredential;
+    private OnListFragmentInteractionListener mListener;
+    private List<CalendarListEntry> returnedCalendarList;
+    private RecyclerView recyclerView;
 
     public MainListFragment() {
     }
@@ -81,7 +75,6 @@ public class MainListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.list_calendar, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
-        progressBar = (ProgressBar) view.findViewById(R.id.main_progressbar);
 
         if (savedInstanceState == null) {
             recyclerView.setVisibility(View.INVISIBLE);
@@ -176,7 +169,7 @@ public class MainListFragment extends Fragment {
                 recyclerView.setAdapter(
                         new CalendarItemRecyclerViewAdapter(output, mListener));
                 recyclerView.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.INVISIBLE);
+
 
             }
         }

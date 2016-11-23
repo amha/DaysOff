@@ -9,10 +9,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.Date;
 
@@ -24,6 +26,17 @@ public class CalendarActivity extends AppCompatActivity
         implements CalendarSharedWithFragment.OnFragmentInteractionListener,
         CalendarFragment.OnCalendarSelectionListener {
 
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_CALENDAR_NAME = "calendarName";
+    private static final String PREF_CALENDAR_ID = "calendarId";
+    private static final String ARG_CURRENT_DATE = "currentDate";
+    private static final String ARG_EVENT_LIST = "eventList";
+    String currentAccountName;
+    String calendarName;
+    String calendarId;
+    SharedPreferences settings;
+    SharedPreferences.Editor editor;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -33,26 +46,10 @@ public class CalendarActivity extends AppCompatActivity
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String PREF_FILE = "calendarSessionData";
-    private static final String PREF_CALENDAR_NAME = "calendarName";
-    private static final String PREF_CALENDAR_ID = "calendarId";
-
-    private static final String ARG_CURRENT_DATE = "currentDate";
-    private static final String ARG_EVENT_LIST = "eventList";
-
-    String currentAccountName;
-    String calendarName;
-    String calendarId;
-
-    SharedPreferences settings;
-    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +65,7 @@ public class CalendarActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(calendarName);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -94,6 +92,16 @@ public class CalendarActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onContactSelected(Uri uri) {

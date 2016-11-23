@@ -1,8 +1,6 @@
 package amhamogus.com.daysoff.fragments;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,20 +52,16 @@ public class CalendarFragment extends Fragment {
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_CALENDAR_NAME = "calendarName";
     private static final String PREF_CALENDAR_ID = "calendarId";
-
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     String currentAccountName;
     String calendarName;
     String calendarId;
-
+    GoogleAccountCredential mCredential;
     private CalendarPickerView calendar;
     private ProgressBar mProgress;
     private EventCollection eventsReturnedCollection;
     private List<Event> events;
     private OnCalendarSelectionListener calendarSelection;
-
-
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public CalendarFragment() {
     }
@@ -162,10 +156,14 @@ public class CalendarFragment extends Fragment {
         calendarSelection = null;
     }
 
+    public interface OnCalendarSelectionListener {
+        void onCalendarSelected(Date date, EventCollection events);
+    }
+
     /**
      * Request a list of events for a given calendar.
      */
-    private class RequestEventsTask extends AsyncTask<Void, Void, List<Event>> {
+    class RequestEventsTask extends AsyncTask<Void, Void, List<Event>> {
 
         private com.google.api.services.calendar.Calendar mService = null;
 
@@ -213,20 +211,11 @@ public class CalendarFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Event> output) {
 
-            if (output == null || output.size()  < 1) {
+            if (output == null || output.size() < 1) {
                 // notify user that there are no
                 // events for this calendar
                 mProgress.setVisibility(View.INVISIBLE);
                 calendar.setVisibility(View.VISIBLE);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage(R.string.calendar_no_events)
-                        .setPositiveButton(R.string.calendar_positive_button,
-                                new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                            }
-                        });
-                builder.show();
             } else {
                 Collection<Date> dates = new ArrayList<>();
 
@@ -243,10 +232,6 @@ public class CalendarFragment extends Fragment {
                 calendar.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    public interface OnCalendarSelectionListener {
-        void onCalendarSelected(Date date, EventCollection events);
     }
 
 }
