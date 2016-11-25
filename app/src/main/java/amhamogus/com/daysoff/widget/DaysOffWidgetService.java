@@ -62,7 +62,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
                         getApplicationContext(), Arrays.asList(SCOPES))
                         .setSelectedAccountName(name)
                         .setBackOff(new ExponentialBackOff());
-                new RequestCalendarListTask(mCredential).execute();
             }
         }
 
@@ -89,7 +88,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         public int getCount() {
-            Log.d(TAG, "GET COUNT = " + length);
             return length;
         }
 
@@ -170,7 +168,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
                 // Show toast when the server doesn't return anything
                 Log.d(TAG, "Could not fetch calendar list.");
             } else {
-                Log.d(TAG, output.toString());
                 length = output.size();
                 list = output;
                 AppWidgetManager.getInstance(mContext)

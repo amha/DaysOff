@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Amha Mogus. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package amhamogus.com.daysoff.fragments;
 
 import android.app.AlertDialog;
@@ -10,6 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,21 +59,23 @@ import java.util.Date;
 import amhamogus.com.daysoff.EventsActivity;
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.utils.DateFormater;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-
+/**
+ * An instance of {@link Fragment} that presents a form to the
+ * user.
+ */
 public class AddEventFragment extends Fragment implements View.OnClickListener,
         TimePickerDialog.OnTimeSetListener {
 
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_CALENDAR_ID = "calendarId";
+    private static final String ARG_CURRENT_DATE = "currentDate";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     final String TAG = "ADD_FRAGMENT_LOG";
-
-    EditText summary;
     TextView timeLabel;
-    TextView endTimeLabel;
-    TextView startTimeLabel;
-    TextView addEventHeader;
-    CheckBox food;
-    CheckBox movie;
-    CheckBox outdoors;
     Event mEvent;
     String[] checkedActivities;
     int hour;
@@ -65,30 +83,35 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     int amOrPm;
     DateTime start;
     DateTime end;
-
     String noonOrNight;
-
     int futureHour;
     int futureMinute;
-
-    private static final String PREF_FILE = "calendarSessionData";
-    private static final String PREF_CALENDAR_ID = "calendarId";
-
-    private static final String ARG_CURRENT_DATE = "currentDate";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
-
     String currentAccountName;
     String calendarId;
     Date currentDate;
+    @BindView(R.id.add_event_summary)
+    EditText summary;
+    @BindView(R.id.add_event_date)
+    TextView addEventHeader;
+    @BindView(R.id.start_time_btn)
+    TextView startTimeLabel;
+    @BindView(R.id.end_time_btn)
+    TextView endTimeLabel;
+    @BindView(R.id.event_checkbox_food)
+    CheckBox food;
+    @BindView(R.id.event_checkbox_movie)
+    CheckBox movie;
+    @BindView(R.id.event_checkbox_outdoors)
+    CheckBox outdoors;
+    @BindView(R.id.add_event_location)
+    EditText location;
+    GoogleAccountCredential mCredential;
+
 
     public AddEventFragment() {
     }
 
     public static AddEventFragment newInstance(Date date) {
-
         AddEventFragment fragment = new AddEventFragment();
         Bundle args = new Bundle();
         args.putLong(ARG_CURRENT_DATE, date.getTime());
@@ -100,7 +123,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
 
         if (getArguments() != null) {
-
             currentDate = new Date();
             currentDate.setTime(getArguments().getLong(ARG_CURRENT_DATE));
         }
@@ -126,11 +148,10 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_add_event, container, false);
+        ButterKnife.bind(this, rootView);
 
-        summary = (EditText) rootView.findViewById(R.id.add_event_summary);
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
-        addEventHeader = (TextView) rootView.findViewById(R.id.add_event_date);
+        getActivity().getWindow()
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         addEventHeader.setText(calendarId);
 
         // Get current time
@@ -144,9 +165,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         } else {
             noonOrNight = "PM";
         }
-
-        startTimeLabel = (TextView) rootView.findViewById(R.id.start_time_btn);
-        endTimeLabel = (TextView) rootView.findViewById(R.id.end_time_btn);
 
         if (minute <= 29) {
             // round to half past
@@ -185,22 +203,16 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             }
         }
 
-
         startTimeLabel.setText("" + hour + ":"
                 + String.format("%02d", minute) + " " + noonOrNight);
+        startTimeLabel.setOnClickListener(this);
+
         endTimeLabel.setText("" + futureHour + ":"
                 + String.format("%02d", futureMinute) + " " + noonOrNight);
-
-        startTimeLabel.setOnClickListener(this);
         endTimeLabel.setOnClickListener(this);
 
-        food = (CheckBox) rootView.findViewById(R.id.event_checkbox_food);
         food.setOnClickListener(this);
-
-        movie = (CheckBox) rootView.findViewById(R.id.event_checkbox_movie);
         movie.setOnClickListener(this);
-
-        outdoors = (CheckBox) rootView.findViewById(R.id.event_checkbox_outdoors);
         outdoors.setOnClickListener(this);
 
         return rootView;
@@ -215,60 +227,58 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        // When user hits save in the toolbar validate input, and
-        // build event object and send insert event request to google.
-        if (id == R.id.action_save_event) {
-            if (validate()) {
+        switch (id) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(getActivity());
+                return true;
+            case R.id.action_save_event:
+                if (validate()) {
+                    // Convert time into RFC3339 format
+                    start = DateFormater.getDateTime(
+                            startTimeLabel.getText().toString(),
+                            currentDate,
+                            noonOrNight);
 
-                // Convert time into RFC3339 format
-                start = DateFormater.getDateTime(
-                        startTimeLabel.getText().toString(),
-                        currentDate,
-                        noonOrNight);
+                    EventDateTime startDateTime = new EventDateTime()
+                            .setDateTime(start)
+                            .setTimeZone(Calendar.getInstance().getTimeZone().getID());
 
-                EventDateTime startDateTime = new EventDateTime()
-                        .setDateTime(start)
-                        .setTimeZone(Calendar.getInstance().getTimeZone().getID());
+                    end = DateFormater.getDateTime(
+                            endTimeLabel.getText().toString(),
+                            currentDate,
+                            noonOrNight);
 
+                    EventDateTime endDateTime = new EventDateTime()
+                            .setDateTime(end)
+                            .setTimeZone(Calendar.getInstance().getTimeZone().getID());
 
-                end = DateFormater.getDateTime(
-                        endTimeLabel.getText().toString(),
-                        currentDate,
-                        noonOrNight);
+                    // Populate event object with user input
+                    mEvent.setSummary(summary.getText().toString());
+                    mEvent.setStart(startDateTime).setEnd(endDateTime);
+                    mEvent.setLocation(location.getText().toString());
 
-                EventDateTime endDateTime = new EventDateTime()
-                        .setDateTime(end)
-                        .setTimeZone(Calendar.getInstance().getTimeZone().getID());
+                    String decription = "";
+                    if (movie.isChecked()) {
+                        decription = movie.getText().toString();
+                    }
+                    if (food.isChecked()) {
+                        decription = decription + food.getText().toString();
+                    }
+                    if (outdoors.isChecked()) {
+                        decription = decription + outdoors.getText().toString();
+                    }
+                    mEvent.setDescription(decription);
 
-                // Populate event object with user input
-                mEvent.setSummary(summary.getText().toString());
-                mEvent.setStart(startDateTime).setEnd(endDateTime);
+                    new AddEventTask(mCredential).execute(mEvent);
 
-
-                String decription = "";
-
-                if (movie.isChecked()) {
-                    decription = movie.getText().toString();
                 }
-                if (food.isChecked()) {
-                    decription = decription + food.getText().toString();
-                }
-                if (outdoors.isChecked()) {
-                    decription = decription + outdoors.getText().toString();
-                }
-                mEvent.setDescription(decription);
-
-                new AddEventTask(mCredential).execute(mEvent);
-
-            }
-            return true;
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onClick(View view) {
-
         Bundle args;
         DialogFragment timePicker;
 
@@ -359,14 +369,15 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         timeLabel.setText(displayHour + ":" + displayMinute + " " + amOrPm);
     }
 
+    // Performs form validation before adding event to calendar
     private boolean validate() {
         if (summary.getText().length() < 1) {
             summary.setError(getResources().getString(R.string.event_form_error_summary));
         }
-
         return true;
     }
 
+    // Inserts a new event object into the selected calendar
     private class AddEventTask extends AsyncTask<Event, Void, Event> {
 
         private com.google.api.services.calendar.Calendar mService = null;

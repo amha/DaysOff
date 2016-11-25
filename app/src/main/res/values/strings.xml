@@ -31,11 +31,12 @@
     <string name="event_form_end_time">End:</string>
     <string name="title_activity_add_event">AddEventActivity</string>
     <string name="add_event_save_btn">Save</string>
-
     <string name="event_form_activity_title">Activity</string>
     <string name="event_form_checkbox_food">Grab some food</string>
     <string name="event_form_checkbox_movie">Watch a Movie</string>
     <string name="event_form_checkbox_outdoors">Go Fly Like a Bird</string>
+    <string name="event_form_location_title">Location</string>
+    <string name="event_form_location_hint">Enter location</string>
 
     <!-- Calendar Grid -->
     <string name="calendar_no_events">No events for this Calendar.</string>

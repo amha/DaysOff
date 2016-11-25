@@ -4,24 +4,22 @@
     android:layout_height="match_parent"
     tools:context="amhamogus.com.daysoff.fragments.AddEventFragment">
 
-
     <TextView
         android:id="@+id/add_event_date"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_margin="0dp"
+        android:background="@color/addEventHeader"
         android:gravity="center_vertical|end"
-        android:paddingLeft="20dp"
-        android:paddingStart="20dp"
-        android:paddingRight="20dp"
         android:paddingEnd="20dp"
-        android:background="@color/addEventHeader" />
-
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingStart="20dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="@dimen/add_event_left_margin"
         android:layout_marginTop="55dp"
         android:orientation="vertical">
 
@@ -59,13 +57,11 @@
                 android:layout_marginLeft="16dp"
                 android:text="@string/event_form_time"
                 android:textSize="16sp" />
-
-
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/add_event_row_height"
             android:layout_marginBottom="0dp"
             android:layout_marginLeft="42dp">
 
@@ -86,7 +82,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/add_event_row_height"
             android:layout_marginLeft="42dp">
 
             <TextView
@@ -128,15 +124,13 @@
                 android:layout_marginLeft="16dp"
                 android:text="@string/event_form_activity_title"
                 android:textSize="16dp" />
-
-
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:orientation="vertical"
             android:paddingLeft="42dp">
 
@@ -162,5 +156,38 @@
                 android:text="@string/event_form_checkbox_outdoors" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#cccccc" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_alarm_black_24dp" />
+
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="@string/event_form_location_title"
+                android:textSize="16dp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/add_event_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/event_form_location_hint"
+            android:inputType="text"
+            android:paddingStart="@dimen/add_event_left_margin" />
     </LinearLayout>
 </FrameLayout>
