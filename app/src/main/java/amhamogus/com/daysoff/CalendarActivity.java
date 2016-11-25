@@ -18,7 +18,6 @@ package amhamogus.com.daysoff;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -44,8 +43,7 @@ import butterknife.ButterKnife;
  * of a users' calendar.
  */
 public class CalendarActivity extends AppCompatActivity
-        implements CalendarSharedWithFragment.OnFragmentInteractionListener,
-        CalendarFragment.OnCalendarSelectionListener {
+        implements CalendarFragment.OnCalendarSelectionListener {
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_FILE = "calendarSessionData";
@@ -56,7 +54,6 @@ public class CalendarActivity extends AppCompatActivity
     String calendarName;
     String calendarId;
     SharedPreferences settings;
-    SharedPreferences.Editor editor;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.container)
@@ -116,10 +113,6 @@ public class CalendarActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onContactSelected(Uri uri) {
     }
 
     /**

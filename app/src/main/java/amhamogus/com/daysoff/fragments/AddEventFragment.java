@@ -270,7 +270,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                     mEvent.setDescription(decription);
 
                     new AddEventTask(mCredential).execute(mEvent);
-
                 }
                 return true;
         }

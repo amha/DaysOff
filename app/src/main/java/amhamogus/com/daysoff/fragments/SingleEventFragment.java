@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import amhamogus.com.daysoff.R;
+import butterknife.ButterKnife;
 
 public class SingleEventFragment extends Fragment {
 
@@ -45,6 +46,8 @@ public class SingleEventFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_single_event, container, false);
+        ButterKnife.bind(root);
+
         TextView mDesc = (TextView)root.findViewById(R.id.single_event_desc_field);
         mDesc.setText(desc);
 
