@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Amha Mogus. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package amhamogus.com.daysoff.adapters;
 
 import android.support.v7.widget.RecyclerView;
@@ -15,22 +30,16 @@ import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.fragments.MainListFragment.OnListFragmentInteractionListener;
 
 /**
- * Add description.
+ * An adapter that bind's {@link com.google.api.services.calendar.model.CalendarList} to
+ * a {@link RecyclerView}.
  */
 public class CalendarItemRecyclerViewAdapter
         extends RecyclerView.Adapter<CalendarItemRecyclerViewAdapter.ViewHolder> {
 
-    /**
-     * A collection of...
-     */
     private final ArrayList<String> mValues;
     private final ArrayList<String> calendarID;
-    private List<CalendarListEntry> calendarListEntries;
-
-    /**
-     * Callback that.....
-     */
     private final OnListFragmentInteractionListener mListener;
+    private List<CalendarListEntry> calendarListEntries;
 
     public CalendarItemRecyclerViewAdapter(List<CalendarListEntry> entryList,
                                            OnListFragmentInteractionListener listener) {
@@ -77,21 +86,20 @@ public class CalendarItemRecyclerViewAdapter
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         final View mView;
-        //final TextView mIdView;
         final TextView mContentView;
-        String mItem;
         public String color;
+        String mItem;
 
         ViewHolder(View view) {
             super(view);
             mView = view;
-            //mIdView = (TextView) view.findViewById(R.id.id);
             mContentView = (TextView) view.findViewById(R.id.content);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '"
+                    + mContentView.getText() + "'";
         }
     }
 }

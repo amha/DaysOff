@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Amha Mogus. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package amhamogus.com.daysoff;
 
 import android.Manifest;
@@ -13,8 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,9 +51,6 @@ public class MainActivity extends AppCompatActivity
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-    /**
-     * The key for the list parameter.
-     */
     private static final String ARG_CALENDAR_NAME = "calendarName";
     private static final String PREF_FILE = "calendarSessionData";
     private static final String PREF_ACCOUNT_NAME = "accountName";
@@ -48,38 +58,29 @@ public class MainActivity extends AppCompatActivity
     private static final String PREF_CALENDAR_ID = "calendarId";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     public Toast mOutputText;
-    String TAG = "MAIN ACTIVITY";
     GoogleAccountCredential mCredential;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
     FragmentManager fragmentManager;
-    ProgressBar progressBar;
-    /**
-     * A instance of {@link MainListFragment} that displays a
-     * collection of events.
-     */
+    String TAG = "MAIN ACTIVITY";
     private MainListFragment mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
 
         fragmentManager = getSupportFragmentManager();
         mList = (MainListFragment) fragmentManager.findFragmentByTag("list");
 
         if (mList == null) {
-            progressBar.setVisibility(View.INVISIBLE);
             mList = mList.newInstance(1);
             fragmentManager.beginTransaction()
-                    .add(R.id.list_wrapper, mList, "list")
-                    .commit();
+                    .add(R.id.list_wrapper, mList, "list").commit();
         }
 
         settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
 
-        // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
@@ -111,13 +112,13 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         } else {
             // User calendar has not been loaded.
-            Toast.makeText(MainActivity.this,
-                    "Please restart the app.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Please restart the app.", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
-     * The following method was provided by the Google Calendar API Quickstart guide:
+     * The approach to get user permission to use account details was done using
+     * Google Calendar API Quickstart guide:
      * https://developers.google.com/google-apps/calendar/quickstart/android
      */
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
@@ -252,16 +253,6 @@ public class MainActivity extends AppCompatActivity
         dialog.show();
     }
 
-    /**
-     * The following method was provided by the Google Calendar API Quickstart guide:
-     * https://developers.google.com/google-apps/calendar/quickstart/android
-     * <p/>
-     * Attempt to call the API, after verifying that all the preconditions are
-     * satisfied. The preconditions are: Google Play Services installed, an
-     * account was selected and the device currently has online access. If any
-     * of the preconditions are not satisfied, the app will prompt the user as
-     * appropriate.
-     */
     private void getCalendarList() {
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
@@ -279,25 +270,20 @@ public class MainActivity extends AppCompatActivity
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d(TAG, "ON ACTIVITY RESULT CALLED");
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    Log.d(TAG, "Not okay");
                     mOutputText.setText(
-                            "This app requires Google Play Services. Please install " +
-                                    "Google Play Services on your device and relaunch this app.");
+                            "This app requires Google Play Services. Please " +
+                                    "install Google Play Services on your device " +
+                                    "and relaunch this app.");
                 } else {
                     getCalendarList();
                 }
                 break;
             case REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK
-                        && data != null && data.getExtras() != null) {
-
-                    Log.d(TAG, "RESULT OK");
-                    String accountName =
-                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
+                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
 
                     // Add users' account name to shared preferences
                     if (accountName != null) {
@@ -309,12 +295,9 @@ public class MainActivity extends AppCompatActivity
                         editor.apply();
 
                         mCredential.setSelectedAccountName(accountName);
-                        //getCalendarList();
                         mList = mList.newInstance(1);
-                        progressBar.setVisibility(View.INVISIBLE);
                         fragmentManager.beginTransaction()
-                                .add(R.id.list_wrapper, mList, "list")
-                                .commit();
+                                .add(R.id.list_wrapper, mList, "list").commit();
                     }
                 }
                 break;
@@ -326,5 +309,4 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
     }
-
 }

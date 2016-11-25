@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Amha Mogus. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package amhamogus.com.daysoff;
 
 import android.content.Context;
@@ -21,7 +36,13 @@ import java.util.Date;
 import amhamogus.com.daysoff.fragments.CalendarFragment;
 import amhamogus.com.daysoff.fragments.CalendarSharedWithFragment;
 import amhamogus.com.daysoff.model.EventCollection;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
+/**
+ * An instance of {@link AppCompatActivity} that presents a view
+ * of a users' calendar.
+ */
 public class CalendarActivity extends AppCompatActivity
         implements CalendarSharedWithFragment.OnFragmentInteractionListener,
         CalendarFragment.OnCalendarSelectionListener {
@@ -31,47 +52,41 @@ public class CalendarActivity extends AppCompatActivity
     private static final String PREF_CALENDAR_NAME = "calendarName";
     private static final String PREF_CALENDAR_ID = "calendarId";
     private static final String ARG_CURRENT_DATE = "currentDate";
-    private static final String ARG_EVENT_LIST = "eventList";
     String currentAccountName;
     String calendarName;
     String calendarId;
     SharedPreferences settings;
     SharedPreferences.Editor editor;
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.container)
+    ViewPager mViewPager;
+    @BindView(R.id.tabs)
+    TabLayout tabLayout;
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        // Using butterknife for data binding
+        ButterKnife.bind(this);
 
+        settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         currentAccountName = settings.getString(PREF_ACCOUNT_NAME, null);
         calendarName = settings.getString(PREF_CALENDAR_NAME, null);
         calendarId = settings.getString(PREF_CALENDAR_ID, null);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(calendarName);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     }
 
@@ -105,7 +120,6 @@ public class CalendarActivity extends AppCompatActivity
 
     @Override
     public void onContactSelected(Uri uri) {
-        // Do nothing, this may not be needed
     }
 
     /**
