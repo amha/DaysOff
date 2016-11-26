@@ -301,21 +301,21 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         switch (view.getId()) {
             case R.id.event_checkbox_food:
                 if (((CheckBox) view).isChecked()) {
-                    checkedActivities[0] = "Grub";
+                    checkedActivities[0] = "Eat a meal";
                 } else {
                     checkedActivities[0] = "";
                 }
                 break;
             case R.id.event_checkbox_movie:
                 if (((CheckBox) view).isChecked()) {
-                    checkedActivities[1] = "Flick";
+                    checkedActivities[1] = "Watch a movie";
                 } else {
                     checkedActivities[1] = "";
                 }
                 break;
             case R.id.event_checkbox_outdoors:
                 if (((CheckBox) view).isChecked()) {
-                    checkedActivities[2] = "Walking around";
+                    checkedActivities[2] = "Go for a walk";
                 } else {
                     checkedActivities[2] = "";
                 }
@@ -382,8 +382,50 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
     // Performs form validation before adding event to calendar
     private boolean validate() {
+        // Check event title exists
         if (summary.getText().length() < 1) {
             summary.setError(getResources().getString(R.string.event_form_error_summary));
+            return false;
+        }
+
+        // Check start time proceeds end time
+        if (start == null) {
+            start = DateFormater.getDateTime(startTimeLabel.getText().toString(),
+                    currentDate, noonOrNight);
+        }
+        if (end == null) {
+            end = DateFormater.getDateTime(endTimeLabel.getText().toString(),
+                    currentDate, noonOrNight);
+        }
+        Date startDate = new Date(start.getValue());
+        Date endDate = new Date(end.getValue());
+
+        if (startDate.after(endDate)) {
+            AlertDialog.Builder mAlertBuilder = new AlertDialog.Builder(getActivity())
+                    .setTitle("Event time error")
+                    .setMessage("Start times must proceed end times. Pick new time.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alertDialog = mAlertBuilder.create();
+            alertDialog.show();
+            return false;
+        }
+
+        if ((food.isChecked() || movie.isChecked() || outdoors.isChecked()) == false) {
+            AlertDialog.Builder mAlertBuilder = new AlertDialog.Builder(getActivity())
+                    .setTitle("Select an activity")
+                    .setMessage("You must select at least 1 activity.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alertDialog = mAlertBuilder.create();
+            alertDialog.show();
+            return false;
         }
         return true;
     }
