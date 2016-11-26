@@ -11,10 +11,6 @@ import java.util.ArrayList;
 
 import amhamogus.com.daysoff.R;
 
-/**
- * Created by amhamogus on 11/25/16.
- */
-
 public class ContactsAdapter extends ArrayAdapter<String> {
 
     ArrayList<String> mList;

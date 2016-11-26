@@ -128,8 +128,9 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         }
 
         super.onCreate(savedInstanceState);
-        checkedActivities = new String[3];
         setHasOptionsMenu(true);
+
+        checkedActivities = new String[3];
         mEvent = new Event();
 
         SharedPreferences preferences = getActivity()
@@ -150,15 +151,16 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         View rootView = inflater.inflate(R.layout.fragment_add_event, container, false);
         ButterKnife.bind(this, rootView);
 
-        getActivity().getWindow()
-                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         addEventHeader.setText(calendarId);
 
-        // Get current time
-        final Calendar c = Calendar.getInstance();
-        hour = c.get(Calendar.HOUR_OF_DAY);
-        minute = c.get(Calendar.MINUTE);
-        amOrPm = c.get(Calendar.AM_PM);
+        // Set default date and time values
+        // based on the current time
+        final Calendar currentDate = Calendar.getInstance();
+        hour = currentDate.get(Calendar.HOUR);
+        minute = currentDate.get(Calendar.MINUTE);
+        amOrPm = currentDate.get(Calendar.AM_PM);
 
         if (amOrPm == Calendar.AM) {
             noonOrNight = "AM";
@@ -166,35 +168,47 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             noonOrNight = "PM";
         }
 
+        // By default, events are set to 30 minutes. Based on the
+        // current minute value round to the next 30 minute set
         if (minute <= 29) {
-            // round to half past
+            // Minute value is between 0 and 29.
+            // Set the start time to half past.
             minute = 30;
+            // Set end time to the the next hour.
             futureMinute = 00;
-
-            // set future hour to the next hour
+            // Set future hour to the next hour.
             if (hour > 12) {
-                // error case
+                // The app tries to mange hours in 12 hour format
+                // So hour values should not exceed 12. If hour does
+                // exceed 12, we convert to 12 hour format.
                 hour = hour - 12;
                 futureHour = hour + 1;
             } else if (hour == 0) {
-                // noon or midnight is set to '0' which is not
+                // In 12 hour format. Convert 0 to 12.
+                // Noon or midnight is set to '0' which is not
                 // helpful for users, thus we change 0 to 12
                 hour = 12;
                 futureHour = 1;
             } else {
-                // non-special case where we increment hour by 1
+                //
                 futureHour = hour + 1;
             }
         } else {
-            // round to the nearest hour
+            // Current minute is between 30 and 60.
+            // Round to the nearest hour.
             minute = 00;
             futureMinute = 30;
 
             if (hour > 12) {
-                // error case
+                // The app tries to mange hours in 12 hour format
+                // So hour values should not exceed 12. If hour does
+                // exceed 12, we convert to 12 hour format.
                 hour = hour - 12;
                 futureHour = hour;
             } else if (hour == 0 || hour == 12) {
+                // In 12 hour format. Convert 0 to 12.
+                // Noon or midnight is set to '0' which is not
+                // helpful for users, thus we change 0 to 12
                 hour = 1;
                 futureHour = 1;
             } else {
@@ -203,14 +217,16 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             }
         }
 
+        // Update form with default start and end time
+        // for a new event.
         startTimeLabel.setText("" + hour + ":"
                 + String.format("%02d", minute) + " " + noonOrNight);
         startTimeLabel.setOnClickListener(this);
-
         endTimeLabel.setText("" + futureHour + ":"
                 + String.format("%02d", futureMinute) + " " + noonOrNight);
         endTimeLabel.setOnClickListener(this);
 
+        // Add click listener to checkboxes
         food.setOnClickListener(this);
         movie.setOnClickListener(this);
         outdoors.setOnClickListener(this);
@@ -225,13 +241,15 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        switch (id) {
+        switch (item.getItemId()) {
             case android.R.id.home:
+                // User has tapped the home icon
                 NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
             case R.id.action_save_event:
+                // User is attempting to add a new event. Upon validating
+                // the form, send an insert event to server.
                 if (validate()) {
                     // Convert time into RFC3339 format
                     start = DateFormater.getDateTime(
@@ -268,7 +286,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
                         decription = decription + outdoors.getText().toString();
                     }
                     mEvent.setDescription(decription);
-
                     new AddEventTask(mCredential).execute(mEvent);
                 }
                 return true;
@@ -335,9 +352,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         String displayHour;
         String displayMinute;
 
-        ViewGroup timePickerGroup = (ViewGroup) timePicker.getChildAt(0);
-        //String amOrPm = ((Button)timePickerGroup.getChildAt(2)).getText().toString();
-
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MINUTE, pickerMinute);
         calendar.set(Calendar.HOUR_OF_DAY, pickerHour);
@@ -349,7 +363,6 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             displayHour = "12";
             noonOrNight = "AM";
         } else if (hour > 12) {
-            //hour = hour - 12;
             displayHour = (hour - 12) + "";
             noonOrNight = "PM";
         } else {
@@ -357,14 +370,13 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             displayHour = hour + "";
         }
 
-
         if (minute < 10) {
             displayMinute = "0" + minute;
         } else {
             displayMinute = minute + "";
         }
+        // Add AM or PM to the user selected time range
         String amOrPm = ((calendar.get(Calendar.AM_PM)) == Calendar.AM) ? "am" : "pm";
-
         timeLabel.setText(displayHour + ":" + displayMinute + " " + amOrPm);
     }
 
