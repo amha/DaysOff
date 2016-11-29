@@ -52,6 +52,8 @@
     <string name="event_form_error_checkboxes">Pick at least 1 activity.</string>
     <string name="add_event_network_error_title">Error Title</string>
     <string name="add_event_network_error_message">Add error message here.</string>
+    <string name="events_activity_no_date_set">No Date Set</string>
+    <string name="events_activity_no_date_set_message">The date value has not been set. Return to the calendar screen and pick a date.</string>
 
     <!-- Widget -->
     <string name="default_widget_text">Setup App to Use Widget</string>

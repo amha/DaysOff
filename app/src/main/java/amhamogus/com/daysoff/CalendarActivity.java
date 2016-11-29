@@ -49,6 +49,7 @@ public class CalendarActivity extends AppCompatActivity
     private static final String PREF_FILE = "calendarSessionData";
     private static final String PREF_CALENDAR_NAME = "calendarName";
     private static final String PREF_CALENDAR_ID = "calendarId";
+    private static final String PREF_SELECTED_DATE = "selectedDate";
     private static final String ARG_CURRENT_DATE = "currentDate";
     String currentAccountName;
     String calendarName;
@@ -91,6 +92,11 @@ public class CalendarActivity extends AppCompatActivity
 
         Bundle bundle = new Bundle();
         bundle.putLong(ARG_CURRENT_DATE, date.getTime());
+
+        SharedPreferences preferences = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putLong(PREF_SELECTED_DATE, date.getTime());
+        editor.commit();
 
         Intent intent = new Intent(getApplicationContext(), EventsActivity.class);
         intent.putExtras(bundle);

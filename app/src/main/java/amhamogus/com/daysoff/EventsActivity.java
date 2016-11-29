@@ -15,6 +15,9 @@
  */
 package amhamogus.com.daysoff;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -39,8 +42,11 @@ public class EventsActivity extends AppCompatActivity
         implements EventDetailFragment.OnEventSelected {
 
     private static final String ARG_CURRENT_DATE = "currentDate";
+    private static final String PREF_FILE = "calendarSessionData";
+    private static final String PREF_SELECTED_DATE = "selectedDate";
     long selectedDate;
     EventDetailFragment fragment;
+    boolean dateSet = false;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -51,23 +57,43 @@ public class EventsActivity extends AppCompatActivity
 
         // Using butterknife for data binding
         ButterKnife.bind(this);
-
         Intent intent = getIntent();
-        selectedDate = intent.getExtras().getLong(ARG_CURRENT_DATE);
+        if (intent.hasExtra(ARG_CURRENT_DATE)) {
+            // Get user selected date from the intent
+            selectedDate = intent.getExtras().getLong(ARG_CURRENT_DATE);
+            dateSet = true;
+        } else {
+            // Date hasn't been passed through the intent.
+            // Attempt to retrieve it from shared preferences.
+            selectedDate = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+                    .getLong(PREF_SELECTED_DATE, 0);
+            dateSet = true;
+        }
         setSupportActionBar(toolbar);
 
-        // Set user selected date as the Toolbar title to provide
-        // additional context for the user.
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(new Date(selectedDate).toString().substring(0, 10));
-        }
+        if (dateSet) {
+            // Set user selected date as the Toolbar title to provide
+            // additional context for the user.
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle(new Date(selectedDate).toString().substring(0, 10));
+            }
 
-        if (fragment == null) {
-            fragment = EventDetailFragment.newInstance(selectedDate);
+            if (fragment == null) {
+                fragment = EventDetailFragment.newInstance(selectedDate);
+            }
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.event_frame, fragment).commit();
+        } else {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+            alertBuilder.setTitle(R.string.events_activity_no_date_set)
+                    .setMessage(R.string.events_activity_no_date_set_message)
+                    .setPositiveButton(R.string.calendar_positive_button, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Close the dialoge.
+                        }
+                    });
         }
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.event_frame, fragment).commit();
     }
 
     /**

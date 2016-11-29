@@ -60,7 +60,6 @@ public class CalendarFragment extends Fragment {
     private CalendarPickerView calendar;
     private ProgressBar mProgress;
     private EventCollection eventsReturnedCollection;
-    private List<Event> events;
     private OnCalendarSelectionListener calendarSelection;
 
     public CalendarFragment() {
@@ -110,7 +109,7 @@ public class CalendarFragment extends Fragment {
         calendar = (CalendarPickerView) rootView.findViewById(R.id.calendar_view);
         calendar.setVisibility(View.INVISIBLE);
         calendar.init(today, nextYear.getTime())
-                .inMode(CalendarPickerView.SelectionMode.MULTIPLE)
+                .inMode(CalendarPickerView.SelectionMode.SINGLE)
                 .withSelectedDate(today);
 
         calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
@@ -121,6 +120,7 @@ public class CalendarFragment extends Fragment {
 
             @Override
             public void onDateUnselected(Date date) {
+                calendar.setSelected(false);
             }
         });
 
