@@ -22,10 +22,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -59,11 +59,10 @@ public class MainListFragment extends Fragment {
     private static final String PREF_FILE = "calendarSessionData";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     public Toast mOutputText;
+    String TAG = "MAIN FRAGMENT";
     GoogleAccountCredential mCredential;
     @BindView(R.id.list)
     RecyclerView recyclerView;
-    @BindView(R.id.main_list_progress_bar)
-    ProgressBar progressBar;
     private OnListFragmentInteractionListener mListener;
     private List<CalendarListEntry> returnedCalendarList;
 
@@ -78,12 +77,9 @@ public class MainListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-
         SharedPreferences pref =
                 getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         String name = pref.getString(PREF_ACCOUNT_NAME, null);
-
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getActivity().getApplicationContext(), Arrays.asList(SCOPES))
                 .setSelectedAccountName(name)
@@ -97,10 +93,10 @@ public class MainListFragment extends Fragment {
                 .inflate(R.layout.list_calendar, container, false);
         ButterKnife.bind(this, rootView);
         if (savedInstanceState == null) {
-            recyclerView.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.GONE);
             new RequestCalendarListTask(mCredential).execute();
         } else {
-            progressBar.setVisibility(View.INVISIBLE);
+            Log.d(TAG, "SAVED INSTANCE");
         }
         return rootView;
     }
@@ -108,7 +104,6 @@ public class MainListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         // Check that the activity implements the interaction handler
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
@@ -149,7 +144,6 @@ public class MainListFragment extends Fragment {
         RequestCalendarListTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
                     .setApplicationName("Days Off - Debug")
@@ -189,10 +183,7 @@ public class MainListFragment extends Fragment {
                         new LinearLayoutManager(getContext()));
                 recyclerView.setAdapter(
                         new CalendarItemRecyclerViewAdapter(output, mListener));
-                progressBar.setVisibility(View.INVISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
-
-
             }
         }
     }

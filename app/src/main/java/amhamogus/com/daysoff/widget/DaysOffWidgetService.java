@@ -35,6 +35,7 @@ public class DaysOffWidgetService extends RemoteViewsService {
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     static int mAppWidgetId;
+    static int runCount = 0;
     GoogleAccountCredential mCredential;
     String name;
     int length;
@@ -63,23 +64,25 @@ public class DaysOffWidgetService extends RemoteViewsService {
                         .setSelectedAccountName(name)
                         .setBackOff(new ExponentialBackOff());
             }
-        }
-
-        @Override
-        public void onCreate() {
-        }
-
-        @Override
-        public void onDataSetChanged() {
             if (name != null) {
                 // The user has previously setup their google user account with
                 // the app. So we request their list of calendars from the server.
                 new RequestCalendarListTask(mCredential).execute();
+                runCount += 1;
             } else {
                 // The app has not been used before. As the user to launch
                 // the app and select a google account to proceed.
                 Log.d(TAG, "ACCOUNT NAME NOT SET");
             }
+        }
+
+        @Override
+        public void onCreate() {
+
+        }
+
+        @Override
+        public void onDataSetChanged() {
         }
 
         @Override
@@ -98,7 +101,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
             remoteViews =
                     new RemoteViews(mContext.getPackageName(), R.layout.row_widget_item);
             remoteViews.setTextViewText(R.id.widget_content, list.get(position).getSummary());
-
             // Prepare to pass data when the usr clicks on a row item
             Bundle bundle = new Bundle();
             bundle.putInt(DaysOffWidget.EXTRA_ITEM, position);
@@ -138,7 +140,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
         RequestCalendarListTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
                     .setApplicationName("Days Off - Debug")
@@ -163,7 +164,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
 
         @Override
         protected void onPostExecute(List<CalendarListEntry> output) {
-
             if (output == null || output.size() == 0) {
                 // Show toast when the server doesn't return anything
                 Log.d(TAG, "Could not fetch calendar list.");
@@ -172,7 +172,6 @@ public class DaysOffWidgetService extends RemoteViewsService {
                 list = output;
                 AppWidgetManager.getInstance(mContext)
                         .notifyAppWidgetViewDataChanged(mAppWidgetId, R.id.widget_list_view);
-
             }
         }
     }

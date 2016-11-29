@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         settings = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
-
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
@@ -303,7 +302,6 @@ public class MainActivity extends AppCompatActivity
                 break;
             case REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
-                    Log.d(TAG, "RESULT OKAY AND CAL");
                     getCalendarList();
                 }
                 break;

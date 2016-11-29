@@ -73,6 +73,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
     private static final String PREF_CALENDAR_ID = "calendarId";
     private static final String ARG_CURRENT_DATE = "currentDate";
     private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String PREF_CALENDAR_NAME = "calendarName";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     final String TAG = "ADD_FRAGMENT_LOG";
     TextView timeLabel;
@@ -136,7 +137,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         SharedPreferences preferences = getActivity()
                 .getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         currentAccountName = preferences.getString(PREF_ACCOUNT_NAME, null);
-        calendarId = preferences.getString(PREF_CALENDAR_ID, null);
+        calendarId = "Calendar Name: " + preferences.getString(PREF_CALENDAR_NAME, null);
 
         mCredential = GoogleAccountCredential
                 .usingOAuth2(getActivity().getApplicationContext(), Arrays.asList(SCOPES))
@@ -175,7 +176,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             // Set the start time to half past.
             minute = 30;
             // Set end time to the the next hour.
-            futureMinute = 00;
+            futureMinute = 0;
             // Set future hour to the next hour.
             if (hour > 12) {
                 // The app tries to mange hours in 12 hour format
@@ -196,7 +197,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
         } else {
             // Current minute is between 30 and 60.
             // Round to the nearest hour.
-            minute = 00;
+            minute = 0;
             futureMinute = 30;
 
             if (hour > 12) {
