@@ -40,6 +40,7 @@ public class EventsActivity extends AppCompatActivity
 
     private static final String ARG_CURRENT_DATE = "currentDate";
     long selectedDate;
+    EventDetailFragment fragment;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -62,8 +63,9 @@ public class EventsActivity extends AppCompatActivity
             getSupportActionBar().setTitle(new Date(selectedDate).toString().substring(0, 10));
         }
 
-        EventDetailFragment fragment;
-        fragment = EventDetailFragment.newInstance(selectedDate);
+        if (fragment == null) {
+            fragment = EventDetailFragment.newInstance(selectedDate);
+        }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.event_frame, fragment).commit();
     }

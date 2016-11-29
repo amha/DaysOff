@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 Amha Mogus. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package amhamogus.com.daysoff.fragments;
 
 import android.content.Context;
@@ -10,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -28,12 +44,14 @@ import java.util.List;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
+ * Activities containing this fragment MUST implement t
+ * he {@link OnListFragmentInteractionListener} interface.
  */
 public class MainListFragment extends Fragment {
 
@@ -42,9 +60,12 @@ public class MainListFragment extends Fragment {
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     public Toast mOutputText;
     GoogleAccountCredential mCredential;
+    @BindView(R.id.list)
+    RecyclerView recyclerView;
+    @BindView(R.id.main_list_progress_bar)
+    ProgressBar progressBar;
     private OnListFragmentInteractionListener mListener;
     private List<CalendarListEntry> returnedCalendarList;
-    private RecyclerView recyclerView;
 
     public MainListFragment() {
     }
@@ -72,16 +93,16 @@ public class MainListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.list_calendar, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.list);
-
+        View rootView = inflater
+                .inflate(R.layout.list_calendar, container, false);
+        ButterKnife.bind(this, rootView);
         if (savedInstanceState == null) {
             recyclerView.setVisibility(View.INVISIBLE);
             new RequestCalendarListTask(mCredential).execute();
+        } else {
+            progressBar.setVisibility(View.INVISIBLE);
         }
-
-        return view;
+        return rootView;
     }
 
     @Override
@@ -168,6 +189,7 @@ public class MainListFragment extends Fragment {
                         new LinearLayoutManager(getContext()));
                 recyclerView.setAdapter(
                         new CalendarItemRecyclerViewAdapter(output, mListener));
+                progressBar.setVisibility(View.INVISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
 
 

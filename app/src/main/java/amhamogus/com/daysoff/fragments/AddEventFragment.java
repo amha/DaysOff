@@ -452,9 +452,7 @@ public class AddEventFragment extends Fragment implements View.OnClickListener,
             } catch (Exception e) {
                 cancel(true);
                 Log.d(TAG, "error" + e.toString());
-
                 // build dialog to inform user their event wasn't// successfully added
-
             }
             return mEvent;
         }

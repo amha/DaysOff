@@ -20,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -44,6 +45,8 @@ import amhamogus.com.daysoff.adapters.EventsRecyclerViewAdapter;
 import amhamogus.com.daysoff.model.DaysOffEvent;
 import amhamogus.com.daysoff.model.EventCollection;
 import amhamogus.com.daysoff.utils.CollectionHelper;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,24 +60,23 @@ public class EventDetailFragment extends Fragment {
 
     private static final String TAG = "EVENT DETAIL";
     private static final String ARG_CURRENT_DATE = "currentDate";
-
     private static final String PREF_FILE = "calendarSessionData";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_CALENDAR_ID = "calendarId";
-
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+    GoogleAccountCredential mCredential;
+    @BindView(R.id.event_list)
+    RecyclerView view;
+    @BindView(R.id.emptyEventList)
+    CardView card;
+    @BindView(R.id.events_list_progress_bar)
+    ProgressBar progressBar;
     private String accountName;
     private String calendarId;
     private Date currentDate;
     private EventCollection events;
     private List<DaysOffEvent> eventsOnASelectedDate;
-    View rootView;
-
-    RecyclerView view;
-    CardView card;
-
     private OnEventSelected mListener;
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     public EventDetailFragment() {
     }
@@ -87,10 +89,8 @@ public class EventDetailFragment extends Fragment {
      * @return A fragment that represents the details of an event
      */
     public static EventDetailFragment newInstance(long selectedDate) {
-
         Bundle args = new Bundle();
         args.putLong(ARG_CURRENT_DATE, selectedDate);
-
         EventDetailFragment fragment = new EventDetailFragment();
         fragment.setArguments(args);
         return fragment;
@@ -100,33 +100,30 @@ public class EventDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentDate = new Date(getArguments().getLong(ARG_CURRENT_DATE));
-        setHasOptionsMenu(true);
-
+        // Get credential information in order to make a
+        // server request
         SharedPreferences settings = getActivity()
                 .getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         accountName = settings.getString(PREF_ACCOUNT_NAME, null);
         calendarId = settings.getString(PREF_CALENDAR_ID, null);
-
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getContext(), Arrays.asList(SCOPES))
                 .setSelectedAccountName(accountName)
                 .setBackOff(new ExponentialBackOff());
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.list_events, container, false);
-        card = (CardView) rootView.findViewById(R.id.emptyEventList);
-        card.setVisibility(View.INVISIBLE);
-        view = (RecyclerView) rootView.findViewById(R.id.event_list);
+        View rootView = inflater.inflate(R.layout.list_events, container, false);
+        // Bind views via butterknife
+        ButterKnife.bind(this, rootView);
         view.setVisibility(View.INVISIBLE);
-
+        card.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        // Request events from server
         new getEventsTask(mCredential).execute();
-
         return rootView;
     }
 
@@ -159,7 +156,6 @@ public class EventDetailFragment extends Fragment {
             case R.id.menu_share_action:
                 StringBuilder message = new StringBuilder();
                 message.append("Here's my schedule: ");
-
 
                 if (eventsOnASelectedDate.size() > 0) {
                     for (int i = 0; i < eventsOnASelectedDate.size(); i++) {
@@ -225,6 +221,7 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    // Request events for a specified calendar
     private class getEventsTask extends AsyncTask<Void, Void, List<Event>> {
 
         private com.google.api.services.calendar.Calendar eventService = null;
@@ -244,7 +241,7 @@ public class EventDetailFragment extends Fragment {
             try {
                 return getEvents();
             } catch (IOException io) {
-                //TODO
+                Log.d(TAG, "ERROR: " + io.toString());
                 return null;
             }
         }
@@ -263,13 +260,15 @@ public class EventDetailFragment extends Fragment {
         protected void onPostExecute(List<Event> output) {
             if (output != null) {
                 if (output.size() > 0) {
+                    // Returning all events from the server
+                    Log.d(TAG, "Set of events returned from server: " + output.size());
+
                     Date eventDate;
                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
                     events = new EventCollection(CollectionHelper.convertListToCollection(output));
                     eventsOnASelectedDate = new ArrayList<>();
 
-                    // Get events for the user selected day
+                    // Find all events that match the user selected date
                     for (int i = 0; i < events.getEvents().size(); i++) {
                         try {
                             eventDate = format.parse(events.getEvents().get(i).getStartTime());
@@ -278,13 +277,14 @@ public class EventDetailFragment extends Fragment {
                             }
                         } catch (java.text.ParseException e) {
                             // Create error handling mechanism.
+                            Log.d(TAG, "ERROR PARSING: " + e.toString());
                         }
                     }
-
-
+                    progressBar.setVisibility(View.INVISIBLE);
                     if (eventsOnASelectedDate.size() > 0) {
-                        Log.d(TAG, "event found today");
-                        // Add relevant events to the recycler view
+                        Log.d(TAG, "Events found for: \n" + currentDate.toString());
+                        // The calendar has events for the user selected date
+                        // which we add to the recycler view.
                         LinearLayoutManager layoutManager =
                                 new LinearLayoutManager(getActivity().getApplicationContext());
                         view.setLayoutManager(layoutManager);
@@ -294,11 +294,16 @@ public class EventDetailFragment extends Fragment {
                         // show relevant views
                         view.setVisibility(View.VISIBLE);
                         card.setVisibility(View.INVISIBLE);
+                        setHasOptionsMenu(true);
                     } else {
-                        // display add event Call to Action
+                        // The calendar did not return any events for
+                        // the user selected date. Display call to action.
                         card.setVisibility(View.VISIBLE);
+                        Log.d(TAG, "NO EVENTS FOUND TODAY");
                     }
                 }
+            } else {
+                Log.d(TAG, "GET EVENT TASK RETURNING NULL");
             }
         }
     }

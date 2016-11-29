@@ -18,4 +18,10 @@
         tools:context="amhamogus.com.daysoff.fragments.MainListFragment"
         tools:listitem="@layout/row_calendar_item" />
 
+    <ProgressBar
+        android:id="@+id/main_list_progress_bar"
+        android:layout_width="@dimen/progress_bar_size"
+        android:layout_height="@dimen/progress_bar_size"
+        android:layout_centerInParent="true" />
+
 </RelativeLayout>

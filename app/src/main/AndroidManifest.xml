@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="standard"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,14 +25,14 @@
         <activity
             android:name=".CalendarActivity"
             android:label="@string/title_activity_calendar_detail"
-            android:launchMode="singleInstance"
+            android:launchMode="standard"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".EventsActivity"
             android:label="@string/title_activity_event_detail"
-            android:launchMode="singleInstance"
+            android:launchMode="standard"
             android:parentActivityName=".CalendarActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -58,7 +58,7 @@
         </activity>
         <activity
             android:name=".SingleEventActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="standard"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

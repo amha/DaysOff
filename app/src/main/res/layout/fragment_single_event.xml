@@ -8,6 +8,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/single_event_date_label"
         android:gravity="bottom"
         android:paddingEnd="@dimen/text_margin"
         android:paddingStart="@dimen/text_margin"
@@ -17,14 +18,14 @@
 
     <TextView
         android:id="@+id/single_event_date_field"
+        style="@style/ListItemStyle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:fontFamily="sans-serif-light"
         android:gravity="top"
         android:paddingEnd="@dimen/text_margin"
         android:paddingStart="@dimen/text_margin"
         android:text="@string/single_event_date"
-        android:textSize="30sp" />
+        android:textSize="@dimen/field_vales" />
 
     <View
         android:layout_width="match_parent"
@@ -35,6 +36,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/single_event_time_label"
         android:gravity="bottom"
         android:paddingEnd="@dimen/text_margin"
         android:paddingStart="@dimen/text_margin"
@@ -44,14 +46,14 @@
 
     <TextView
         android:id="@+id/single_event_time_field"
+        style="@style/ListItemStyle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:fontFamily="sans-serif-light"
         android:gravity="top"
         android:paddingEnd="@dimen/text_margin"
         android:paddingStart="@dimen/text_margin"
         android:text="@string/single_event_time"
-        android:textSize="30sp" />
+        android:textSize="@dimen/field_vales" />
 
     <View
         android:layout_width="match_parent"
@@ -62,6 +64,35 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/single_event_location_label"
+        android:gravity="bottom"
+        android:paddingEnd="@dimen/text_margin"
+        android:paddingStart="@dimen/text_margin"
+        android:text="@string/single_event_location"
+        android:textColor="@color/colorAccent"
+        android:textStyle="normal|bold" />
+
+    <TextView
+        android:id="@+id/single_event_location_field"
+        style="@style/ListItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="top"
+        android:paddingEnd="@dimen/text_margin"
+        android:paddingStart="@dimen/text_margin"
+        android:text="@string/single_event_location"
+        android:textSize="@dimen/field_vales" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="10dp"
+        android:background="#ccc" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/single_event_desc_label"
         android:fontFamily="sans-serif"
         android:gravity="bottom"
         android:paddingEnd="@dimen/text_margin"
@@ -72,42 +103,14 @@
 
     <TextView
         android:id="@+id/single_event_desc_field"
+        style="@style/ListItemStyle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:fontFamily="sans-serif-light"
         android:gravity="top"
         android:paddingEnd="@dimen/text_margin"
         android:paddingStart="@dimen/text_margin"
         android:text="@string/single_event_desc"
-        android:textSize="30sp" />
-
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="10dp"
-        android:background="#ccc" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="bottom"
-        android:paddingEnd="@dimen/text_margin"
-        android:paddingStart="@dimen/text_margin"
-        android:text="@string/single_event_location"
-        android:textColor="@color/colorAccent"
-        android:textStyle="normal|bold" />
-
-    <TextView
-        android:id="@+id/single_event_location_field"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:fontFamily="sans-serif-light"
-        android:gravity="top"
-        android:paddingEnd="@dimen/text_margin"
-        android:paddingStart="@dimen/text_margin"
-        android:text="@string/single_event_location"
-        android:textSize="30sp" />
+        android:textSize="@dimen/field_vales" />
 </LinearLayout>
 
 
