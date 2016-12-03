@@ -74,5 +74,8 @@
     <string name="single_event_desc_label">Description of Event</string>
     <string name="add_event_icon_clock">Icon of a Clock to denote date and time selection</string>
     <string name="add_event_location">Text field to input Location of event</string>
+
+    <!-- Database related -->
+    <string name="content_authority">amhamogus.com.daysoff.app</string>
 </resources>
 

@@ -61,7 +61,6 @@ public class CalendarActivity extends AppCompatActivity
     ViewPager mViewPager;
     @BindView(R.id.tabs)
     TabLayout tabLayout;
-    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +81,7 @@ public class CalendarActivity extends AppCompatActivity
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
     }
@@ -93,7 +91,6 @@ public class CalendarActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putLong(ARG_CURRENT_DATE, date.getTime());
 
-        SharedPreferences preferences = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putLong(PREF_SELECTED_DATE, date.getTime());
         editor.commit();

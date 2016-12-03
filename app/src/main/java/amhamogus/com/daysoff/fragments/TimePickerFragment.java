@@ -27,8 +27,8 @@ public class TimePickerFragment extends DialogFragment {
         } else {
             // Use the current time as the default values for the picker
             final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR);
-            int minute = c.get(Calendar.MINUTE);
+            hour = c.get(Calendar.HOUR);
+            minute = c.get(Calendar.MINUTE);
         }
         // Create a new instance of TimePickerDialog and return it
         return new TimePickerDialog(

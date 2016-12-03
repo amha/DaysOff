@@ -39,7 +39,7 @@ public class CalendarItemRecyclerViewAdapter
     private final ArrayList<String> mValues;
     private final ArrayList<String> calendarID;
     private final OnListFragmentInteractionListener mListener;
-    private List<CalendarListEntry> calendarListEntries;
+    //private List<CalendarListEntry> calendarListEntries;
 
     public CalendarItemRecyclerViewAdapter(List<CalendarListEntry> entryList,
                                            OnListFragmentInteractionListener listener) {
@@ -47,7 +47,7 @@ public class CalendarItemRecyclerViewAdapter
         mValues = new ArrayList<>(entryList.size());
         calendarID = new ArrayList<>(entryList.size());
         mListener = listener;
-        calendarListEntries = entryList;
+        //calendarListEntries = entryList;
 
         for (int i = 0; i < entryList.size(); i++) {
             mValues.add(entryList.get(i).getSummary());
@@ -65,7 +65,6 @@ public class CalendarItemRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = mValues.get(position);
-        //holder.mIdView.setText(Integer.toString(position));
         holder.mContentView.setText(mValues.get(position));
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

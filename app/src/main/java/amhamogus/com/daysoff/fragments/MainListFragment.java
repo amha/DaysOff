@@ -15,6 +15,7 @@
  */
 package amhamogus.com.daysoff.fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -41,9 +43,11 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import amhamogus.com.daysoff.R;
 import amhamogus.com.daysoff.adapters.CalendarItemRecyclerViewAdapter;
+import amhamogus.com.daysoff.data.DaysOffContract;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -159,6 +163,10 @@ public class MainListFragment extends Fragment {
         protected List<CalendarListEntry> doInBackground(Void... params) {
             try {
                 return getDataFromApi();
+            } catch (UserRecoverableAuthIOException e) {
+                Log.d(TAG, "USER RECOVERABLE EXCEPTION THROWN");
+                startActivityForResult(e.getIntent(), 1001);
+                return null;
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -184,6 +192,23 @@ public class MainListFragment extends Fragment {
                 recyclerView.setAdapter(
                         new CalendarItemRecyclerViewAdapter(output, mListener));
                 recyclerView.setVisibility(View.VISIBLE);
+
+                Vector<ContentValues> cVVector = new Vector<ContentValues>(output.size());
+
+                for (CalendarListEntry listEntry : output) {
+                    ContentValues dbValues = new ContentValues();
+                    dbValues.put(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_IDENTIFIER, listEntry.getId());
+                    dbValues.put(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_SUMMARY, listEntry.getSummary());
+                    dbValues.put(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KIND, listEntry.getKind());
+                    dbValues.put(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KEY, listEntry.getId());
+                    cVVector.add(dbValues);
+                }
+                if (cVVector.size() > 0) {
+                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                    cVVector.toArray(cvArray);
+                    getContext().getContentResolver()
+                            .bulkInsert(DaysOffContract.DaysOffCalendarsEntry.CONTENT_URI, cvArray);
+                }
             }
         }
     }

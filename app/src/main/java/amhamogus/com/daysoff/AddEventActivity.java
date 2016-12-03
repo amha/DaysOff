@@ -47,7 +47,7 @@ public class AddEventActivity extends AppCompatActivity {
         // Using butterknife for data binding
         ButterKnife.bind(this);
 
-        // Set activity title to date, to provide users additional cotext
+        // Set activity title to date, to provide users additional coNtext
         Date cDate = new Date();
         cDate.setTime(getIntent().getExtras().getLong(ARG_CURRENT_DATE));
         toolbar.setTitle(cDate.toString().substring(0,10));

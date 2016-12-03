@@ -74,7 +74,11 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/days_off_widget_info" />
         </receiver>
-
+        <provider
+            android:name=".data.DaysOffProvider"
+            android:authorities="@string/content_authority"
+            android:exported="false"
+            android:syncable="false" />
         <service
             android:name=".widget.DaysOffWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
