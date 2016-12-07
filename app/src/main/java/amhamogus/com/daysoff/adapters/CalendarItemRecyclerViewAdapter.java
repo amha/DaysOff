@@ -39,7 +39,6 @@ public class CalendarItemRecyclerViewAdapter
     private final ArrayList<String> mValues;
     private final ArrayList<String> calendarID;
     private final OnListFragmentInteractionListener mListener;
-    //private List<CalendarListEntry> calendarListEntries;
 
     public CalendarItemRecyclerViewAdapter(List<CalendarListEntry> entryList,
                                            OnListFragmentInteractionListener listener) {
@@ -47,7 +46,6 @@ public class CalendarItemRecyclerViewAdapter
         mValues = new ArrayList<>(entryList.size());
         calendarID = new ArrayList<>(entryList.size());
         mListener = listener;
-        //calendarListEntries = entryList;
 
         for (int i = 0; i < entryList.size(); i++) {
             mValues.add(entryList.get(i).getSummary());

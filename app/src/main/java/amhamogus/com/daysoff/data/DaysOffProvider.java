@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
@@ -14,7 +13,6 @@ public class DaysOffProvider extends ContentProvider {
 
     static final int CALENDARS = 100;
 
-    private static final SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
     private CalendarDbHelper dbHelper;
     private UriMatcher uriMatcher = buildUriMatcher();
 
@@ -41,8 +39,8 @@ public class DaysOffProvider extends ContentProvider {
                 mCursor = dbHelper.getReadableDatabase().query(
                         DaysOffContract.DaysOffCalendarsEntry.TABLE_NAME,
                         projection,
-                        selection,
-                        selectionArgs,
+                        null,
+                        null,
                         null,
                         null,
                         sortOrder
@@ -83,6 +81,7 @@ public class DaysOffProvider extends ContentProvider {
                     returnCount++;
                 }
             }
+            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }

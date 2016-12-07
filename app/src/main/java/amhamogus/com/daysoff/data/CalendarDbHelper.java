@@ -17,8 +17,8 @@ public class CalendarDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String SQL_CREATE_CALENDAR_LIST_TABLE = "CREATE TABLE " + DaysOffContract.DaysOffCalendarsEntry.TABLE_NAME + "(" +
                 DaysOffContract.DaysOffCalendarsEntry._ID + " INTEGER PRIMARY KEY," +
-                DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_SUMMARY + " TEXT NOT NULL, " +
-                DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KIND + " TEXT NOT NULL, " +
+                DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_SUMMARY + " TEXT, " +
+                DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KIND + " TEXT, " +
                 DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_IDENTIFIER + " INTEGER, " +
                 DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KEY + " INTEGER " +
                 ")";

@@ -18,9 +18,13 @@ package amhamogus.com.daysoff.fragments;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,6 +45,7 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -51,17 +56,14 @@ import amhamogus.com.daysoff.data.DaysOffContract;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement t
- * he {@link OnListFragmentInteractionListener} interface.
- */
-public class MainListFragment extends Fragment {
+
+public class MainListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String PREF_FILE = "calendarSessionData";
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+    private static final int LOADER_ID = 110;
+
     public Toast mOutputText;
     String TAG = "MAIN FRAGMENT";
     GoogleAccountCredential mCredential;
@@ -96,14 +98,35 @@ public class MainListFragment extends Fragment {
         View rootView = inflater
                 .inflate(R.layout.list_calendar, container, false);
         ButterKnife.bind(this, rootView);
+
         if (savedInstanceState == null) {
             recyclerView.setVisibility(View.GONE);
-            new RequestCalendarListTask(mCredential).execute();
+
+            // request data from cursor
+            Cursor data = getContext().getContentResolver().query(
+                    DaysOffContract.DaysOffCalendarsEntry.CONTENT_URI,
+                    new String[]{DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KEY, DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_SUMMARY},
+                    null,
+                    null,
+                    null);
+            data.moveToFirst();
+
+            if (data.getCount() < 1) {
+                data.close();
+                // Running for the first time, call server,
+                // get calendar list, add it to the content provider
+                // and then
+                new RequestCalendarListTask(mCredential).execute();
+            } else {
+                loaderHelper();
+            }
         } else {
-            Log.d(TAG, "SAVED INSTANCE");
+            Log.d(TAG, "saved instance not null");
+            loaderHelper();
         }
         return rootView;
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -121,6 +144,58 @@ public class MainListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(),
+                DaysOffContract.DaysOffCalendarsEntry.CONTENT_URI,
+                new String[]{DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KEY, DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_SUMMARY},
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null && data.moveToFirst()) {
+            int idColumnIndex =
+                    data.getColumnIndex(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KEY);
+            int summaryColumnIndex =
+                    data.getColumnIndex(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_SUMMARY);
+
+            // Convery cursor data into a list of calendar
+            // item objects.
+            CalendarListEntry entry;
+            List<CalendarListEntry> mList = new ArrayList<>(data.getCount());
+
+            for (int i = 0; i < data.getCount(); i++) {
+                entry = new CalendarListEntry();
+                entry.setSummary(data.getString(summaryColumnIndex));
+                entry.setId(data.getString(idColumnIndex));
+                mList.add(entry);
+                data.moveToNext();
+            }
+
+            // Update Recycler View with data retrieved from
+            // the content provider.
+            recyclerView.setLayoutManager(
+                    new LinearLayoutManager(getContext()));
+            recyclerView.setAdapter(
+                    new CalendarItemRecyclerViewAdapter(mList, mListener));
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            Log.d(TAG, "LOADER IS NULL");
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    private void loaderHelper() {
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     /**
@@ -186,15 +261,7 @@ public class MainListFragment extends Fragment {
                 mOutputText.makeText(getActivity().getApplicationContext(),
                         "No results returned.", Toast.LENGTH_SHORT).show();
             } else {
-                returnedCalendarList = output;
-                recyclerView.setLayoutManager(
-                        new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(
-                        new CalendarItemRecyclerViewAdapter(output, mListener));
-                recyclerView.setVisibility(View.VISIBLE);
-
                 Vector<ContentValues> cVVector = new Vector<ContentValues>(output.size());
-
                 for (CalendarListEntry listEntry : output) {
                     ContentValues dbValues = new ContentValues();
                     dbValues.put(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_IDENTIFIER, listEntry.getId());
@@ -203,12 +270,14 @@ public class MainListFragment extends Fragment {
                     dbValues.put(DaysOffContract.DaysOffCalendarsEntry.COLUMN_CAL_KEY, listEntry.getId());
                     cVVector.add(dbValues);
                 }
+
                 if (cVVector.size() > 0) {
                     ContentValues[] cvArray = new ContentValues[cVVector.size()];
                     cVVector.toArray(cvArray);
                     getContext().getContentResolver()
                             .bulkInsert(DaysOffContract.DaysOffCalendarsEntry.CONTENT_URI, cvArray);
                 }
+                loaderHelper();
             }
         }
     }

@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity
         if (calendarID != null & calendarName != null) {
             String name = settings.getString(PREF_ACCOUNT_NAME, null);
 
+            Log.d(TAG, "MAIN: " + calendarID + " " + calendarName);
+
             editor = settings.edit();
             editor.putString(PREF_CALENDAR_NAME, calendarName);
             editor.putString(PREF_CALENDAR_ID, calendarID);

@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -226,7 +227,8 @@ public class CalendarFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Event> output) {
 
-            if (output == null || output.size() < 1) {
+            Log.d(TAG, "OUPUT ON POST EXECUTE: " + output.size());
+            if (output == null) {
                 // notify user that there are no
                 // events for this calendar
                 mProgress.setVisibility(View.INVISIBLE);
