@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="amhamogus.com.daysoff.EventsActivity"
-    tools:showIn="@layout/activity_events">
+    tools:showIn="@layout/activity_event">
 
     <FrameLayout
         android:id="@+id/event_frame"

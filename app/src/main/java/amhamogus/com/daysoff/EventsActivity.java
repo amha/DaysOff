@@ -53,7 +53,7 @@ public class EventsActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_events);
+        setContentView(R.layout.activity_event);
 
         // Using butterknife for data binding
         ButterKnife.bind(this);
